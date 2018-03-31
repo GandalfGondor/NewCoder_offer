@@ -1,0 +1,38 @@
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    deque<TreeNode*> s;
+    vector<int> PrintFromTopToBottom(TreeNode* root) {
+        vector<int> v;
+        TreeNode *temp;
+        if(root!=nullptr)
+        {
+            v.push_back(root->val);
+            s.push_back(root);
+            while(!s.empty())
+            {
+                temp = s.front();
+                s.pop_front();
+                if(temp->left!=nullptr)
+                {
+                    v.push_back(temp->left->val);
+                    s.push_back(temp->left);
+                }
+                if(temp->right!=nullptr)
+                {
+                    v.push_back(temp->right->val);
+                    s.push_back(temp->right);
+                }
+            }
+        }
+        return v;
+    }
+};
