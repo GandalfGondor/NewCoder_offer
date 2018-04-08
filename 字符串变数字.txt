@@ -1,0 +1,30 @@
+/*将一个字符串转换成一个整数，要求不能使用字符串转换整数的库函数。 数值为0或者字符串不是一个合法的数值则返回0*/
+class Solution {
+public:
+   int StrToInt(string str) {
+	if (str == "" || str.size()<2)
+		return 0;
+	int s = 0;
+	int i = 1, now = 0, count = 0;
+	if (str[0] == '-')
+		s = -1;
+	else if (str[0] == '+')
+	{
+		s = 1;
+	}
+	else if ((str[0] > '0'&&str[0] < '9'))
+	{
+		s = 1;
+		count = str[0]-'0';
+	}
+	while (i<str.size())
+	{
+		now = str[i] - '0';
+		if (now < 0 || now>9)
+			return 0;
+		count = count * 10 + now;
+		i++;
+	}
+	return s*count;
+}
+};
