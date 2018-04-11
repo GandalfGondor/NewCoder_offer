@@ -1,0 +1,67 @@
+#include<iostream>
+#include<vector>
+#include<string>
+using namespace std;
+
+bool match(char* str, char* pattern)
+{
+
+	int i = 0;
+	int j = 0;
+	char temp;
+	do
+	{
+		if (str[i] == pattern[j] && pattern[j + 1] != '*')
+		{
+			j++;
+			continue;
+		}
+		if (str[i] == pattern[j] && pattern[j + 1] == '*')
+		{
+			while (str[i] == pattern[j])
+			{
+				i++;
+			}
+			j = j + 2;
+			i--;
+			continue;
+		}
+		if (pattern[j] == '.'&&pattern[j+1]=='*')
+		{
+			temp = str[i];
+			while (str[i] == temp)
+			{
+				i++;
+			}
+			i--;
+			j=j+2;
+			continue;
+		}
+		if (pattern[j] == '.'&&pattern[j + 1] != '*')
+		{
+			j++;
+			continue;
+		}
+		if (pattern[j] != str[i] && pattern[j + 1] == '*')
+		{
+			j = j + 2;
+			i--;
+			continue;
+		}
+		if (pattern[j] != str[i]&& pattern[j + 1] != '*')
+			return false;
+
+	}while (str[i++] != '\0');
+	if (pattern[j] == '\0')
+		return true;
+	else return false;
+}
+int main()
+{
+
+	char* str = ""; 
+	char* pattern = ".*";
+	bool b = match(str,pattern);
+
+	return 1;
+}
