@@ -1,0 +1,40 @@
+/*如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。*/
+class Solution {
+public:
+    vector<int> c;
+    
+    void Insert(int num)
+    {
+        c.push_back(num);
+        int i =0,j=0;
+        int temp;
+        if(c.size()>1)
+        {
+            for(i=1;i<c.size();i++)
+            {
+                if(c[i]<c[i-1])
+                {
+                    temp = c[i];
+                    for(j=i;j>0;j--)
+                    {
+                        if(temp>c[j-1])
+                            break;
+                        c[j] = c[j-1];
+                    }
+                    c[j] = temp;
+                }
+            }
+        }
+    }
+
+    double GetMedian()
+    { 
+     if(!(c.size()%2))
+     {
+        return (double((c[c.size() / 2 - 1]) + double(c[c.size()/2]))) / 2;
+     }
+        else
+            return c[c.size()/2];
+    }
+
+};
