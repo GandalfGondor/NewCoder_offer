@@ -1,0 +1,72 @@
+/*请实现两个函数，分别用来序列化和反序列化二叉树*/
+/*
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+    TreeNode(int x) :
+            val(x), left(NULL), right(NULL) {
+    }
+};
+*/
+class Solution {
+public:
+string s;
+int cnt = 0;
+char* Serialize(TreeNode *root) {
+	Serializecore(root);
+	char *c = new char[s.size() + 1];
+	int i = 0;
+	while (i < s.size())
+	{
+		c[i] = s[i];
+		i++;
+	}
+	c[i] = '\0';
+	return c;
+}
+void Serializecore(TreeNode *root)
+{
+	if (root == nullptr)
+	{
+		s = s + '#';
+		return;
+	}
+	else s = s + to_string(root->val) + ',';
+	Serializecore(root->left);
+	Serializecore(root->right);
+}
+
+   
+TreeNode* Deserialize(char *str) {
+	TreeNode* t = nullptr;
+	Deserializecore(&t, str);
+	return t;
+}
+void Deserializecore(TreeNode** t , char *str)
+{
+	if (str[cnt - 1] == '\0'&&str[cnt] == '\0')
+		return;
+	if (str[cnt] == '#')
+	{
+		cnt++;
+		*t = nullptr;
+		return;
+	}
+	else
+	{
+		int len; int val = 0;
+		for (len = 0; str[len + cnt] != ','; len++)
+		{
+			if (len > 0)
+				val = val * 10;
+			val = val+(str[len + cnt] - '0');
+		}
+		TreeNode *n =new TreeNode(val);
+		*t = n;
+		cnt = cnt + len+1;
+	}
+	Deserializecore(&(*t)->left, str);
+	Deserializecore(&(*t)->right, str);
+}
+};
