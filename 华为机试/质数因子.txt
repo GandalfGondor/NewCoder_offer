@@ -1,0 +1,32 @@
+#include<iostream>
+#include<string>
+#include<math.h>
+using namespace std;
+
+void getResult(long ulDataInput)
+{
+	long i = 0;
+	long data = ulDataInput;
+	while (data>0)
+	{
+		if (data == 1)
+			break;
+		for (i = 2; i <= data; i++)
+		{
+			if (!(data%i))
+			{
+				cout<<i<< ' ';
+				data = data / i;
+				break;
+			}
+		}
+	}
+}
+
+int main()
+{
+	long l;
+	while (cin >> l)
+		getResult(l);
+	return 0;
+}
