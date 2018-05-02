@@ -1,0 +1,24 @@
+#include<iostream>
+using namespace std;
+void* mcpy(void *dest, void *src, size_t count)
+{
+	if (dest == nullptr || src == nullptr)
+		return nullptr;
+	char *pd = (char*)dest;
+	char *ps = (char*)src;
+	//判断是否会发生内存重叠现象
+	bool flag1 = (pd < ps && pd + count > ps);
+	bool flag2 = (pd > ps && ps + count > pd);
+	int i = 0;
+	if (flag1 || flag2)
+		return nullptr;
+	else
+	{
+		while (i < count)
+		{
+			*pd++ = *ps++;
+			i++;
+		}
+	}
+	return dest;
+}
