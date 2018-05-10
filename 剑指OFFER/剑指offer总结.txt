@@ -1,0 +1,65 @@
+重载=函数
+class CMystring
+{
+	public:
+	CMystring(char * pData = null);
+	CMystring(const CMystring& str);
+	~CMystring();
+	
+	private:
+	char * m_pData;
+}
+
+
+CMystring & CMystring::operator=(const CMystring & str)
+{
+	if(str != this)
+	{
+		CMystring temp(str);
+		char * pTemp = strTemp.m_pData;
+		strTemp.m_pData = m_pData;   //一旦跳出if语句，自动对原本对象的m_pData进行析构。
+		m_pData = pTemp;
+	}
+	
+	return *this;
+}
+
+
+单例模式
+//懒汉模式
+class singleton
+{
+	private:
+		singleton(){};
+		static singleton *m_Instance;
+	public:
+		static pthread_mutex_t mutex;
+		
+		static getInstance()
+		{
+			if(m_Instance == null)
+			{
+				pthread_mutex_lock(mutex);
+				if(m_Instance == null)
+					m_Instance = new singleton();
+				pthread_mutex_unlock(mutex);
+			}
+			
+			return m_Instance;
+		}		
+}
+
+//饿汉模式
+class singleton
+{
+	private:
+		singleton(){};
+		static singleton *p = new singleton(); 
+	public:
+		getInstance();
+}
+
+singleton* singleton::getInstance()
+{
+	return p;
+}
