@@ -1,0 +1,48 @@
+懒汉实现方法：(线程安全)
+#include<mutex>
+#include<iostream>
+
+class singleton
+{
+private:
+	singleton()
+	{}
+	static singleton *s;
+public:
+	static std::mutex singlemutex;
+	static singleton* getsingleton();
+};
+std::mutex singleton::singlemutex;
+singleton* singleton::s = NULL;
+singleton* singleton::getsingleton()
+{
+	if(s == nullptr)
+	{
+		singlemutex.lock();
+		if(s==nullptr)
+			s = new singleton();
+		singlemutex.unlock();
+	}
+	return s;
+}
+
+
+饿汉模式：
+#include<mutex>
+#include<iostream>
+
+class singleton
+{
+private:
+	singleton()
+	{}
+	static singleton *s;
+public:
+	static singleton* getsingleton();
+};
+singleton* singleton::s = new singleton();
+singleton* singleton::getsingleton()
+{
+	
+	return s;
+}
