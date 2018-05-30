@@ -1,0 +1,22 @@
+//重新构造一个赋值运算符
+class CMystring
+{
+	public:
+	CMystring(char* pData = NULL);
+	CMystring(const CMystring & str);
+	~CMystring();
+	private:
+	char * m_pData;
+}
+
+CMystring& CMystring::operator=(const CMystring& Copy)
+{
+	if(this != &Copy)
+	{
+		CMystring temp(Copy);
+		char * pt = temp.m_pData;
+		temp.m_pData = m_pData;
+		m_pData = pt;
+	}
+	return * this;
+}

@@ -11,13 +11,18 @@
 class Solution {
 public:
     vector<int> printListFromTailToHead(ListNode* head) {
-        vector<int> t,p;
-         for(;head!=NULL;head = head->next)
-            t.push_back(head->val);
-        for(int i=0;i<t.size();i++)
+        stack<ListNode*> nodestack;
+        vector<int> result;
+        while(head != nullptr)
         {
-            p.push_back(t[t.size()-i-1]);
+            nodestack.push(head);
+            head = head->next;
         }
-        return p;
+        while(!nodestack.empty())
+        {
+            result.push_back(nodestack.top()->val);
+            nodestack.pop();
+        }
+        return result;
     }
 };
