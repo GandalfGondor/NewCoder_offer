@@ -11,34 +11,27 @@
  */
 class Solution {
 public:
-    TreeNode* add(vector<int> pre, vector<int> vin, int m, int n, int i)
+    TreeNode* constructcore(vector<int> pre,int ps,int pe,vector<int> vin,
+                     int vs,int ve)
 {
-	TreeNode* p = new TreeNode(pre[i]);
-	if (m == n)
-		return p;
-	int j = 0;
-	for (; j<pre.size(); j++)
-		if (pre[i] == vin[j])
-			break;
-	if(j-m>0)
-		p->left = add( pre, vin, m, j - 1, i + 1);
-	if((j + 1)<=n)
-		p->right = add( pre, vin, j + 1, n, i + j - m + 1);
-	return p;
-}
-TreeNode* reConstructBinaryTree(vector<int> pre, vector<int> vin) {
-	if (pre.size() == NULL)
-		return NULL;
-	TreeNode *p = new TreeNode(pre[0]);
-	int j=0;
-	for (; j<pre.size(); j++)
-		if (pre[0] == vin[j])
-			break;
-	if(j>0)
-		p->left = add(pre, vin, 0, j - 1, 1);
-	if(j+1< pre.size())
-		p->right = add( pre, vin, j + 1, pre.size() - 1, j + 1);
-	return p;
+	TreeNode* root = new TreeNode(pre[ps]);
+	if(ps == pe) return root;
+	int i(vs);
+	while(pre[ps] != vin[i] && i<=ve)
+	{
+	    i++;
+	}
+	if(i>vs)
+	    root->left = constructcore(pre,ps+1,ps+i-vs,vin,vs,i-1);
+	if(ve>i)
+	    root->right = constructcore(pre,ps+(i-vs)+1,pe,vin,i+1,ve);
+	return root;
 }
 
+TreeNode* reConstructBinaryTree(vector<int> pre,vector<int> vin) {
+	if(pre.size() == 0|| vin.size() == 0|| pre.size() != vin.size())
+	       return nullptr;
+	int ps = 0,pe = pre.size()-1,vs = 0,ve = vin.size()-1;
+	return constructcore(pre,ps,pe,vin,vs,ve);
+}
 };
