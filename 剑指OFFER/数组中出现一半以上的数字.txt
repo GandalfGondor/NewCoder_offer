@@ -1,0 +1,34 @@
+
+int MoreThanHalfNum_Solution(vector<int> numbers) {
+	int count(0);
+	int i = 1;
+	if(numbers.empty())
+		return 0;
+	int num(numbers[0]);
+	while(i < numbers.size())
+	{
+		if(numbers[i]!=num)
+		{
+			if(count == 0)
+				num = numbers[i];
+			else count--;
+		}
+		else count++;
+		i++;
+	}
+	return judge(numbers,num);
+}
+int judge(vector<int> numbers, int num)
+{
+	int count(0);
+	int cnt(0);
+	while(count < numbers.size())
+	{
+		if(num == numbers[count])
+			cnt++;
+		count++;
+	}
+	if(cnt> numbers.size()/2)
+		return num;
+	else return 0;
+}

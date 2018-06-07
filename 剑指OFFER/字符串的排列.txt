@@ -1,0 +1,32 @@
+class Solution {
+public:
+    vector<string> Permutation(string str) {
+        vector<string> v;
+        if(str.empty())
+            return v;
+        int start = -1;
+        core(str, start, v);
+        return v;
+    }
+    void core(string str, int start, vector<string>& v)
+    {
+        start++;
+        if(start == str.size())
+        {
+            v.push_back(str);
+            return ;
+        }
+        char temp;
+        int s2(start);
+        while(s2!= str.size())
+        {
+            temp = str[start];
+            str[start] = str[s2];
+            str[s2] = temp;
+            core(str,start,v);
+            s2++;
+            while(str[start] == str[s2])
+                s2++;
+        }
+    }
+};

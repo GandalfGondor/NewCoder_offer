@@ -1,0 +1,100 @@
+C++对象模型
+NonStatic data members被配置在每一个class object之内，static data members则被存放在所有object之外，
+static和nonstatic function members被放在所有class object之外。
+Virtual functions：
+1、每个class产生很多指向virtual functions的指针，放在表格之中，这个表格为vtbl
+2、每个class object添加一个指针，指向相关的virtual table。指针称为 vptr。
+	每一个class关联的type_info object也有vtbl指出。
+该指针的设定和重置均由构造函数，析构函数，赋值函数完成。
+
+C++支持多重继承
+虚拟继承，即共享的意思。
+
+C++程序设计三种典范
+1、程序模型
+2、抽象数据类型模型(ADT)
+3、面向对象模型(OO)
+
+一个class object内存大小：
+1、nonstatic data members。
+2、alignment需求和填补上去的空间。
+3、支持virtual由内部产生的额外负担。
+
+指针类型区别主要是在所寻地址的object类型不同。也就是说，指针类型教导编译器如何解释某个特定地址中的
+内存内容及其大小：
+
+转型(cast)是一种编译器指令。不改变一个指针所含的真正地址，只影响指出内存的大小和内容的解释方式。
+
+派生类不能继承基类的构造函数，必须自己定义构造函数进行新增数据成员初始化工作，如果想同时初始化基
+类数据成员，必须调用基类构造函数。
+派生类也不能继承基类的析构函数，派生类的清理工作由派生自身析构函数负责，基类的清理工作由基类析构
+函数负责。
+
+指针类型在编译器决定：
+1、固定可用的接口。
+2、该接口的access level。
+
+编译器确保某object含有vptrs，vptrs的内容不会被基类初始化或者改变。
+OO有好的弹性
+OB有好的效率
+
+合成默认构造函数：
+1、带有默认构造函数的成员类对象：
+member objects在class中声明次序来调用各个constructors，由编译器完成。
+即会对类的构造函数进行扩张。
+2、带有默认构造函数的基类：
+派生类没有构造函数，会合成一个默认构造函数。
+派生类有构造函数，会在每一个构造函数中进行扩张。先调用基类默认构造函数，再调用成员类对象的默认构造函数。
+3、带有virtual function的class
+编译器必须为每一个含有虚函数的类设定vptr初值，放置适当的virtual table。
+4、带有Virtual Base Class的class
+
+class不展现bitwise copy semantics：
+1、class内含一个member object 而后者class声明有一个copy constructor时
+2、当class继承自一个base class，而后者存在一个copy constructor时
+3、当class声明一个或者多个virtual functions
+4、当class派生自虚基类。
+
+新产生class object的vptr不能成功而正确地设好其初始，将导致严重后果。
+派生类赋值给基类，会将派生类的派生部分切割掉。
+
+虚函数中： 如果声明基类一个引用或者是指针，但地址是派生类，那么还是会调用派生类函数。
+
+
+返回值初始化：
+1、首先加上一个额外参数，类型是类对象的引用，用来放置被“拷贝建构”而得到的返回值。
+2、return之前利用copy constructor调用操作。
+3、不传回任何值。
+
+编译器层面优化：
+NRV优化：
+
+必须使用初始化列表的情况：
+1、初始化引用；
+2、初始化const member；
+3、调用基类带有参数的构造函数；
+4、调用成员类具有带参数的构造函数。
+
+参数初始化列表：
+初始化顺序是类中声明顺序，不是列表中的顺序。
+
+空类的sizeof为1字节。被编译器安插进去的char。
+默认存在优化的情况下：
+空基类被视为派生类对象的开头部分。没有花费额外空间。
+若父类是空类，子类是空类，则子类sizeof为一个指针大小(指向虚基类子对象，或者指向一个table)。
+
+菱形继承中最后一层派生类大小：
+两个指针大小。
+
+询问大小的时候，必须注意是32位操作系统还是64位操作系统。
+
+同一个access section中，members的排列必须符合“较晚出现的members在class object中有较高的地址”。
+主要由于members存在边界调整。
+
+vptr一般安排在明确声明的members之后。
+
+数据存取：
+通过一个指针和通过一个对象来存取member，在static data member情况下，完全相同。
+
+若对象为虚基类继承过来的member，通过指针调用必须要通过执行期间接引导，才能够解决该问题。通过对象直接
+存取就会很快，因为它已经确定好对应class，member的offset。

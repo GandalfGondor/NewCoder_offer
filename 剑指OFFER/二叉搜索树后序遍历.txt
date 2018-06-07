@@ -1,0 +1,29 @@
+class Solution {
+public:
+    bool VerifySquenceOfBST(vector<int> sequence) {
+        if(sequence.empty())
+            return false;
+        int start = 0;
+        int end = sequence.size()-1;
+        return judgecore(sequence,start,end);
+    }
+    bool judgecore(vector<int> sequence,int start,int end)
+    {
+       	if (start == end) return true;
+        int pov(start);
+        while (sequence[pov]<sequence[end])
+            pov++;
+        int mid = pov;
+        while (sequence[mid]>sequence[end])
+            mid++;
+        if (mid<end)
+            return false;
+        bool left = true;
+        if (pov>start)
+            left = judgecore(sequence, start, pov - 1);
+        bool right = true;
+        if (pov<end-1)
+            right = judgecore(sequence, pov, end-1);
+        return right && left;
+    }
+};

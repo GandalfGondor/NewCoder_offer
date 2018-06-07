@@ -1,0 +1,53 @@
+/*
+struct TreeNode {
+	int val;
+	struct TreeNode *left;
+	struct TreeNode *right;
+	TreeNode(int x) :
+			val(x), left(NULL), right(NULL) {
+	}
+};*/
+class Solution {
+public:
+    TreeNode* Convert(TreeNode* pRootOfTree)
+    {
+        if(pRootOfTree == nullptr)
+            return nullptr;
+        core(pRootOfTree);
+        while(pRootOfTree->left!=nullptr)
+            pRootOfTree = pRootOfTree->left;
+        return pRootOfTree;
+    }
+    void core(TreeNode* pRootOfTree)
+    {
+        if(pRootOfTree == nullptr)
+            return ;
+        if(pRootOfTree->left != nullptr)
+        {
+            core(pRootOfTree->left);
+            pRootOfTree->left = minleft(pRootOfTree);
+            pRootOfTree->left->right = pRootOfTree;
+        }
+        if(pRootOfTree->right != nullptr)
+        {
+            core(pRootOfTree->right);
+            pRootOfTree->right = minright(pRootOfTree);
+            pRootOfTree->right->left = pRootOfTree;
+        }
+    }
+    
+    TreeNode* minleft(TreeNode* pRootOfTree)
+    {
+        pRootOfTree = pRootOfTree->left;
+        while(pRootOfTree->right!=nullptr)
+            pRootOfTree = pRootOfTree->right;
+        return pRootOfTree; 
+    }
+    TreeNode* minright(TreeNode* pRootOfTree)
+    {
+        pRootOfTree = pRootOfTree->right;
+        while(pRootOfTree->left!=nullptr)
+            pRootOfTree = pRootOfTree->left;
+        return pRootOfTree;
+    }
+};

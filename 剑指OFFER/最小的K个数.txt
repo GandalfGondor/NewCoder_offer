@@ -1,0 +1,51 @@
+class Solution {
+public:
+void swap(vector<int>&v, int i, int j)
+{
+	int temp = v[i];
+	v[i] = v[j];
+	v[j] = temp;
+}
+void merg(vector<int>& v, int start, int len)
+{
+	int i = start;
+	int j = 2 * i + 1;
+	while (j<len)
+	{
+		if (j + 1 < len && v[j + 1] >= v[j])
+		{
+			j = j + 1;
+		}
+		if (v[i] < v[j])
+		{
+			swap(v, i, j);
+			i = j;
+		}
+		j = j * 2 + 1;
+	}
+}
+vector<int> GetLeastNumbers_Solution(vector<int> input, int k) {
+	vector<int> v;
+	if (k>input.size()||k == 0)
+		return v;
+	int i(0);
+	while (i<k)
+	{
+		v.push_back(input[i]);
+		i++;
+	}
+	int m = k / 2;
+	for(;m>=0;m--)
+	merg(v,m,k);
+	while (i<input.size())
+	{
+		if (input[i]<v[0]) {
+			v[0] = input[i];
+			merg(v,0,k);
+		}
+		i++;
+	}
+
+	return v;
+}
+};
