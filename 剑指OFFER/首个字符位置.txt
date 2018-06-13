@@ -1,28 +1,25 @@
 /*在一个字符串(1<=字符串长度<=10000，全部由字母组成)中找到第一个只出现一次的字符,并返回它的位置*/
 class Solution {
 public:
-int FirstNotRepeatingChar(string str) {
-	int i = 0,j =0;
-	string s;
-	if (str == "")
-		return -1;
-	for (; i<str.size(); i++)
+    int FirstNotRepeatingChar(string str) {
+    if(str.empty())
+            return -1;
+    vector<int> hash(256,0);
+	int i = 0;
+	char temp;
+	while(i<str.size())
 	{
-		j = 0;
-		while (j < s.size() && str[i] != s[j]) j++;
-
-		if (j == s.size())
-		{
-			for (j = i+1;j<str.size(); j++)
-			{
-				if (str[j] == str[i])
-					break;
-			}
-			if (j == str.size())
-				return  i;
-			s = s + str[i];
-		}
+		temp = str[i];
+		++hash[temp];
+		i++;
 	}
-    return 0;
-}
+	i = 0;
+	while(i<str.size())
+	{
+		if(hash[str[i]] == 1)
+			break;
+        i++;
+	}
+	return i;
+    }
 };

@@ -1,0 +1,62 @@
+class Solution {
+public:
+    void swap(vector<string>& v,int i,int j)
+{	
+	if(i == j) return ;
+	string temp = v[i];
+	v[i] = v[j];
+	v[j] = temp;
+}
+
+
+bool xiao(const string & a,const string & b)
+{
+	string ab = a+b;
+	string ba = b+a;
+	if(ab<ba || ab == ba)
+		return true;
+	else return false;
+}
+
+int part(vector<string>& v,int start , int end)
+{
+	string i = v[start];
+	while(start<end)
+	{
+		while(start<end && xiao(i,v[end]))
+			--end;
+		swap(v,start,end);
+		while(start<end && xiao(v[start],i))
+			++start;
+		swap(v,start,end);
+	}
+	return start;
+}
+
+void qsort(vector<string>& v,int start,int end)
+{
+	if(start>=end) return;
+	int p = part(v,start,end);
+	qsort(v,start,p-1);
+	qsort(v,p+1,end);
+
+}
+string PrintMinNumber(vector<int> numbers)
+{
+	vector<string> v;
+	int i = 0;
+	while(i<numbers.size())
+	{
+		v.push_back(to_string(numbers[i]));
+		i++;
+	}
+	qsort(v,0,i-1);
+	i = 0;
+	string res;
+	while(i<v.size())
+	{
+		res = res+v[i++];
+	}
+	return res;
+}
+};

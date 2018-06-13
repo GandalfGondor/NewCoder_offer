@@ -25,6 +25,7 @@ C++程序设计三种典范
 
 转型(cast)是一种编译器指令。不改变一个指针所含的真正地址，只影响指出内存的大小和内容的解释方式。
 
+第二章 构造函数语义学：
 派生类不能继承基类的构造函数，必须自己定义构造函数进行新增数据成员初始化工作，如果想同时初始化基
 类数据成员，必须调用基类构造函数。
 派生类也不能继承基类的析构函数，派生类的清理工作由派生自身析构函数负责，基类的清理工作由基类析构
@@ -78,6 +79,7 @@ NRV优化：
 参数初始化列表：
 初始化顺序是类中声明顺序，不是列表中的顺序。
 
+第三章 DATA语义学：
 空类的sizeof为1字节。被编译器安插进去的char。
 默认存在优化的情况下：
 空基类被视为派生类对象的开头部分。没有花费额外空间。
@@ -98,3 +100,69 @@ vptr一般安排在明确声明的members之后。
 
 若对象为虚基类继承过来的member，通过指针调用必须要通过执行期间接引导，才能够解决该问题。通过对象直接
 存取就会很快，因为它已经确定好对应class，member的offset。
+
+具体继承不会增加空间或者存取时间上的额外负担。
+
+在继承关系中：
+C++语言保证出现在derived class中的base class subobject 有其完整原样性。(会产生空间的过多浪费。)
+
+派生类指针可以赋值给基类指针，但是基类指针不能赋值给派生类指针。
+
+加上多态：
+虚函数带来负担：
+1、导入virtual table。
+2、每一个对象有一个 vptr。
+3、扩充constructor，为vptr设定初始值。
+4、扩充destructor，消除vptr。
+
+多重继承，即继承深度。
+多继承，继承多个父类。
+
+class如果还有一个或者多个virtual base class，则分割为两部分，一个不变局部和一个共享局部
+
+为防止虚拟继承串链过长，利用空间换时间，将对应虚基类指针存放到派生类中。
+针对虚基类个数过多，class object负担增加：
+1、利用virtual base class table解决。
+2、虚函数表中防止虚基类的偏移。将虚基类地址为负，函数为正。
+
+有class A{public：int a;};
+其中& A::a返回的是a在class object中的偏移量。返回值类型为int A:: *
+若是取一个真正对象的成员变量地址，将会得到该成员的真实地址。返回值为类型为int *
+
+如何使用指向data member的指针？实例化该int A::*p; A a；a.*p；
+
+第四章 函数语义：
+判断一个函数是nonstatic
+1、他可以被存取nonstatic；
+2、声明为const
+
+成员函数重载，每一个重载化的函数拥有相同的名称，为了让他们独一无二，再加上他们的参数链表。将参数类型也
+编码进去，就可以制造出独一无二的效果。
+
+static member function主要特性：
+1、没有this指针。
+2、不能直接存取class 中的nonstatic members。
+3、不能声明为const，volatile，或者virtual
+4、不需要有对象调用。
+
+取一个static  member function地址，获得其在内存中的真实地址。
+假如class A{static int func(){return 1;}}
+&A::func()返回值为static int (*)()，而不是static int (A::*)()。
+
+C++多态表示一个以public base class 指针或者reference，寻址出一个derived class object。
+
+一个class只会有一个virtual table，每一个table对应一个class object中所有激活的virtual function函数地址。
+一般空间布局都是虚指针指向各自的虚表，虚表第一个是type info for class ，接下来才是各自的虚函数。
+
+如何确定编译时期设定virtual function调用：
+1、不知道class object ptr所指类型，但是我们知道ptr可以存取到该对象的virtual table。
+2、虽然我们不知道那个z()，但是我们知道每一个z()函数都放在vtbl的slot 4。
+
+多重继承下：一个derived class内含n-1个额外的虚表，n表示上一层基类的数目。
+分为主要表格和次要表格。
+
+主要表格包括了derived class所有虚函数，次要表格只包括除了其他base class的虚函数。
+但是次要表格中部分函数需要this指针。
+
+不要再虚基类函数中声明非静态数据成员。
+
