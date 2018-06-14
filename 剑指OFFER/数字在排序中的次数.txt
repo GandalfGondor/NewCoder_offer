@@ -1,0 +1,59 @@
+/*统计一个数字在排序数组中出现的次数。*/
+class Solution {
+public:
+int findfirst(vector<int>data,int k,int s, int e)
+{
+	if(s == e)
+		return s;
+	int res = 0;
+	int mid = (s+e)/2;
+	if(k < data[mid])
+		return findfirst(data,k,s,mid);
+	else if(k > data[mid])
+		return findfirst(data,k,mid+1,e);
+	else 
+	{
+		if(mid>s)
+		{
+			if(data[mid-1]!=k)
+				return mid;
+			else return findfirst(data,k,s,mid);
+		}
+		else return mid;
+	}
+}
+
+int findend(vector<int>data,int k,int s, int e)
+{
+	if(s == e)
+		return s;
+	int res = 0;
+	int mid = (s+e)/2;
+	if(k < data[mid])
+		return findend(data,k,s,mid);
+	else if(k > data[mid])
+		return findend(data,k,mid+1,e);
+	else 
+	{
+		if(mid<e)
+		{	
+			if(data[mid+1]!=k)
+				return mid;
+			else return findend(data,k,mid+1,e);
+		}	
+		else return mid;
+	}
+}
+
+int GetNumberOfK(vector<int> data ,int k) {
+	if(data.empty())
+		return 0;        
+	int start = -1;
+        int end = -1;
+	start = findfirst(data,k,0,data.size()-1);
+	end = findend(data,k,0,data.size()-1);
+	if(data[start] == k)
+		return end-start+1;
+	else return 0;
+}
+};

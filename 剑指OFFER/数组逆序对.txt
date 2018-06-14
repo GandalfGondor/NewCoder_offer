@@ -1,0 +1,48 @@
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。
+输入一个数组,求出这个数组中的逆序对的总数P。并将P对1000000007取模的结果输出。 即输出P%1000000007
+class Solution {
+public:
+vector<int> temp;
+long nixu = 0;
+void core(vector<int>& data,int s,int mid,int e)
+{
+	int i = s,j = mid+1,cnt = s;
+	while(i<=mid && j<=e)
+	{
+		if(data[i]<=data[j])
+		{
+			temp[cnt] = data[i];
+			++cnt;++i;
+		}
+		if(data[j]<data[i])
+		{
+			temp[cnt] = data[j];
+			++cnt;++j;	
+			nixu = (mid+1)-i+nixu;
+		}
+	}
+	if(i<=mid)
+		while(cnt<=e)
+			temp[cnt++] = data[i++];
+	if(j<=e)
+		while(cnt<=e)
+			temp[cnt++] = data[j++];
+	for(i=s;i<=e;++i)
+		data[i] = temp[i];
+}
+
+void merg(vector<int>& data,int s, int e)
+{
+	if(s == e)
+		return;
+	int mid = (s+e)/2;
+	merg(data,s,mid);
+	merg(data,mid+1,e);
+	core(data,s,mid,e);
+}
+int InversePairs(vector<int> data) {
+    temp.resize(data.size());
+	merg(data,0,data.size()-1);
+	return nixu%1000000007;
+}
+};

@@ -1,0 +1,28 @@
+/*输入一棵二叉树，判断该二叉树是否是平衡二叉树。*/
+class Solution {
+public:
+    bool IsBalanced_Solution(TreeNode* pRoot) {
+        int depth = 0;
+        return core(pRoot,depth);
+    }
+    bool core(TreeNode* pRoot,int& depth)
+    {
+        if(pRoot == nullptr)
+        {
+            depth = 0;
+            return true;
+        }
+        int left = 0,right = 0;
+        if(core(pRoot->left,left) && core(pRoot->right,right))
+        {
+            int dif = left-right;
+            if(dif>=-1 && dif<=1)
+            {
+                depth = right>left?right:left;
+                ++depth;
+                return true;
+            }
+        }
+        return false;
+    }
+};
