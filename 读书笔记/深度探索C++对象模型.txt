@@ -166,3 +166,55 @@ C++多态表示一个以public base class 指针或者reference，寻址出一�
 
 不要再虚基类函数中声明非静态数据成员。
 
+指向member function的指针：
+double (point::*pmf)()
+
+堆一个nonstatic member function取地址，获得函数在内存中的地址。但是若是一个virtual function，所知道的
+仅仅是virtual function在与其相关的vtbl中的索引值。
+
+指向member function的指针，还有三个字段，index，faddr和delta。
+
+处理inline函数：
+1、分析函数定义。
+2、扩展在调用点，同时进行参数求值和临时性对象管理。
+
+第五章 构造、解构、拷贝语义学
+析构函数不要设置为纯虚。
+
+编译器为POD声明一个trival default constructor，trival destructor，trival copy constructor，trival 
+assignment operator
+引入虚函数之后，除了class object多负担了一个字节的vptr：
+1、定义的constructor被附加了一些码，将vptr进行初始化
+2、合成一个拷贝构造函数，和一个拷贝赋值构造函数。
+
+如需要传值方式传回local class object，需要提供copy constructor。因为他的出现会触发NRV优化。
+
+Constructor隐藏代码：
+1、初始化列表数据成员放在函数里面。
+2、调用成员的默认构造函数。
+3、设定vptr，指向对应的虚表。
+4、调用基类的constructor。(base class若是非第一基类，则调整this指针)
+调用顺序为继承顺序。
+5、虚基类的构造函数必须被调用，从左到右，从深到浅。
+
+虚继承中，constructor函数本身必须条件式的测试传进来的参数，然后决定是否调用虚基类的构造函数。
+
+如果在constructor中调用成员函数则，用静态方式决议，不用虚拟机制。
+所以vptr初始化实在基类构造函数之后，成员初始化列表之前。所以构造对象严格的变成由基类逐层实现派生类。
+
+constructor构造顺序：
+1、派生类中，所有虚基类和上一层基类的构造函数被调用。
+2、对象vptr进行初始化，指向相关的vtabl
+3、vptr设定之后执行成员列表初始化
+4、执行程序员自己的代码
+
+
+
+
+
+
+
+
+
+
+

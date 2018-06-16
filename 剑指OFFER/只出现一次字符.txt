@@ -1,0 +1,61 @@
+/*一个整型数组里除了两个数字之外，其他的数字都出现了两次。请写程序找出这两个只出现一次的数字。*/
+#include<iostream>
+#include<vector>
+using namespace std;
+void part1(vector<int> data,vector<int>& vec1,vector<int>& vec2)
+{
+	int temp = data[0];
+	int i = 1;
+	while(i<data.size())
+	{
+		temp = data[i] ^ temp;
+		++i;
+	}
+	int one = 1;
+	while(temp!=0)
+	{
+		if(temp & 1)
+			break;
+		else 
+			temp = temp>>1;	
+		one = one<<1;
+	}
+	i = 0;
+	while(i<data.size())
+	{
+		if(data[i] & one)
+			vec1.push_back(data[i]);
+		else
+			vec2.push_back(data[i]);
+		++i;	
+	}
+}
+void findcore(vector<int> vec,int *num)
+{
+	int i = 1;
+	int temp = vec[0];
+	while(i<vec.size())
+	{
+		temp = temp ^ vec[i];
+		++i;
+	}
+	*num = temp;
+}
+void FindNumsAppearOnce(vector<int> data,int* num1,int *num2)
+{
+	vector<int> vec1;
+	vector<int> vec2;
+	part1(data,vec1,vec2);
+	findcore(vec1,num1);
+	findcore(vec2,num2);
+}
+
+int main()
+{
+	vector<int> v{5,2,2,5,3,3,4,7,1,7,1,0};
+	int* num1 = new int(0);
+	int* num2 = new int(0);
+	FindNumsAppearOnce(v,num1,num2);
+	printf("num1 = %d, num2 = %d",*num1,*num2);
+	return 0;
+}

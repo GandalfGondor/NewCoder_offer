@@ -46,20 +46,49 @@ SIGCLD
 2、如果将SIGCLD的配置设置为捕捉，则内核立即检查是否有子进程准备好被等待，如果是这样，
 则调用SIGCLD处理程序。
 
-信号产生和递送之间的时间间隔，信号未决。
+进程调用sigpending函数将指定的信号设置为阻塞和未决。信号产生和递送之间的时间间隔，信号未决。
 
+unsigned int alarm(unsigned int seconds)
+经过指定的seconds秒后会产生指定的SIGALARM，每个进程只能有一个闹钟时间。
 
+sigset_t包含一个信号集，有五个信号集处理函数：
+int sigemptyset(sigset_t *set)	排除所有信号
+int sigemfillset(sigset_t *set)	包括所有信号
+int sigeaddset(sigset_t *set,int signo)	添加信号
+int sigedelset(sigset_t *set, int signo)	删除信号
+成功返回0，出错返回-1
 
+信号屏蔽字规定了当前进程阻塞而不能递送给该进程的信号集。
+int sigprocmask(int how, const sigset_t* set,sigset_t* oset)。成功返回0，失败返回-1
+该函数检测或者更改进程的信号屏蔽字,oset即是返回的信号屏蔽字。
 
+int sigpending(sigset_t * set);
+返回对于调用进程被阻塞不能递送和当前未决的信号集。
 
+int sigaction(int signo, const struct sigaction * act, struct sigaction * oact)
+signo是检测或者修改的信号，act非空，则改变动作，oact非空，则返回原先动作。
+检查或者修改与指定信号相关联的处理动作。
+struct sigaction{
+	void (*sa_handler)();   SIG_IGN，SIG_DFL，或者handler
+	sigset_t sa_mask;	该信号集加入信号屏蔽字当中
+	int sa_flags;
+}
 
+int sigsetjmp(sigjmp_buf env, int savemask)直接调用返回0，从siglongjmp调用，返回非0
+void siglongjmp(sigjmp_buf env, int val)
+在信号处理程序中作非局部转移时应当使用这两个函数。其中sigjmp_buf保存进程的当前信号屏蔽字。
+longsigjmp时从env中恢复信号屏蔽字。
+当调用一个信号处理程序时，被捕捉到的信号加到进程的当前信号屏蔽字。
 
+int sigsuspend(const sigset_t * sigmask)
+进程的信号屏蔽字设置为由sigmask指向的值。捕捉到一个信号或者发生了一个会终止该进程的信号之前，该进程
+被挂起，若信号从处理程序返回，则sigsuspend返回，将信号屏蔽字设置为调用之前的值。
+该函数总是返回-1.
+如果在等待信号发生时希望去睡眠，则sigsuspend函数可以满足此种要求。
 
+void abort(void)
+该函数的功能是使程序异常终止，将SIGABRT信号发送给调用进程。此函数不返回。
+让进程捕获SIGABRT的意图是允许它执行任何它想在进程终止前的清理。
 
-
-
-
-
-
-
-
+system忽略SIGINT和SIGQUIT，阻塞SIGCHLD。
+system的返回值是shell的终止状态，他不总是执行命令字符串进程的终止状态。

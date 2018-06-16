@@ -1,0 +1,45 @@
+class Solution {
+public:
+int count(int s,int e,int sum)
+{
+	int temp = 0;
+	while(s<=e)
+	{
+		temp = temp+s;
+		++s;
+	}
+	return temp;
+}
+
+vector<vector<int> > FindContinuousSequence(int sum) {
+        int s = 1;
+	int e = 1;
+	int stemp = 0;
+	int i  = 0;
+	vector<int> v;
+	vector<vector<int>> v2;
+	while(e<sum)
+	{
+		stemp = count(s,e,sum);
+		if(stemp == sum)
+		{
+			v.clear();
+			for(i = s;i<=e;++i)
+			{
+				v.push_back(i);
+			}
+			v2.push_back(v);
+			++s;
+		}
+		else if(stemp<sum)
+		{
+			++e;
+		}
+		else if(stemp>sum)
+		{
+			++s;
+		}
+	}
+	return v2;
+}
+};
