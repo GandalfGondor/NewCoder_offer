@@ -208,8 +208,45 @@ constructor构造顺序：
 3、vptr设定之后执行成员列表初始化
 4、执行程序员自己的代码
 
+destructor
+1、destructor的函数首先被执行
+2、如果class拥有member class object，而后者拥有destructor那么他们会以声明顺序相反顺序被调用
+3、如果objector内带vptr，则现在被重新设定，指向适当之base class的virtual table
+4、如果有任何非平凡基类有destructor，他们会以相反的顺序调用
+5、如果有任何虚基类拥有，如果该类是最尾端的派生类，他们会以相反顺序调用。
 
+第六章 执行期语义学
+destructor会放在每一个离开点之前。
+全局对象要执行静态构造和析构。
 
+如果class定义有一个constructor，某些vec_new()就会被调用，配置并且构造class object所组成的函数。	
+
+第七章 站在对象模型类端
+只有在每一个具现操作发生时才做类型检验。
+非成员函数名字决议，是根据这个name是否与用以具现出现template的参数类型。
+1、如果使用不相关，那么就以scope of template declaration   专注于一般模板类   
+2、否则就以scope of template instantiation	专注于特定类实现
+
+C++ exception handling由三个主要的语汇组成：
+1、一个throw子句。它在程序某处发出一个exception。
+2、一个或者多个catch子句。
+3、一个try区段。
+
+EH即exception handling
+RTTI正是因为支持EH而获得的副产品
+catch子句中对于exception object的任何改变都是局部性的。	
+
+RTTI
+一个type safe downcast必须在执行期对指针有所查询，看看是否指向所表现的类型。
+RTTI只对多态类型有效。
+所有多态类都维护了一个指针，指向虚函数表，我们把相关的RTTI object地址放进virtual table中。	
+dynamic——cast 运算符可以在执行期决定真正类型。
+返回地址，表示动态类型被确认。
+返回0，表示没有指向任何指针
+type_info是C++所定义的类型描述器的class，该class中放置等待所求类型信息virtual table第一个slot
+type_info object。
+
+typeid返回一个const reference，类型为type_info。
 
 
 
