@@ -1,5 +1,211 @@
 POSIX表示可移植操作系统接口（Portable Operating System Interface of UNIX，缩写为 POSIX ）
 
+第三章 文件I/O
+文件描述符是一个非负整数。
+int open(const char* pathname, int oflag,...,mode_t)
+open返回的文件描述符一定是最小的未用描述符数字。
+oflag为O_RDONLY,O_WRONLY,O_RDWR,
+mode_t一般为S_IRUSR,S_IWUSR,S_IXUSR
+
+int creat(const char* pathname,mode_t mode)
+
+int close(int filedes)
+进程终止之后，所有打开的文件都有内核自动关闭。
+
+off_t lseek(int filedes,off_t offset,int whence)
+通常文件位移量是一个非负整数，但是有些设备可以为负，所以比较其返回值应该判断是否等于-1。
+
+ssize_t read(int files,void * buff,size_t nbytes)
+ssize_t是有符号的整形。
+size_t是无符号整形。
+
+ssize_t write(int filedes,const void *buff,size_t nbytes)
+成功返回已写字数，出错返回-1
+
+内核三种数据结构决定文件
+1、进程表中记录文件描述符表。每一个位置有一个文件描述符标志和一个指针指向文件表。
+2、打开文件有一个文件表，文件状态，文件位移量和指向v节点
+3、每个打开文件有一个v节点，包含文件类型和各种操作函数信息。
+
+打开文件设置O_APPEND标志可以使内核每次对这种文件写操作之前，将进程当前位移量设置到文件末尾处。
+
+int dup(int filedes);
+int dup2(int filedes,int filedes2);
+dup返回的文件描述符一定是当前可用文件描述符中最小数值。
+dup2用filedes2参数指定新描述符的数值。
+其返回的新文件描述符与参数filedes共享，所以共享同一文件状态标志。以及同一文件位移量。
+
+int fcntl(int fileds,int cmd,...)
+该函数可以改变已经打开文件的性质
+常用关于文件描述符F_GETFD,F_SETFD
+常用关于文件状态标记F_GETFL,F_SETFL
+
+ioctl函数是I/O操作的杂物箱。
+int ioctl(int filedes,int request,...)
+
+第七章 UNIX进程的环境
+当内核启动C程序时，在调用main之前先调用一个特殊的启动例程。
+
+void exit(int status)
+void exit(int status)
+
+_exit()立即进入内核，exit先执行一些清除处理工作(调用执行各终止处理程序，关闭所有标准IO流)，再进入内核。
+参数为终止状态。
+
+int atexit(void(*func)(void));
+atexit参数是一个函数地址。
+
+argv[argc]是一个空指针。
+
+C程序存储空间：
+1、正文段，程序段
+2、初始化数据段，数据段
+3、非初始化数据段。bss段
+4、栈
+5、堆
+
+
+每个程序都接收到一张环境表，环境表是一个字符指针数组，每个指针包含一个null结束的字符串地址。
+extern char** environ
+char *getenv(const char *name)
+返回指向与name有关的value指针，否则返回null。不要直接利用environ。
+
+非局部跳转：setjmp和longjmp函数。
+int setjmp(jmp_buf env);
+	直接调用返回值为0，从longjmp跳转过来返回值为非零，即longjmp设置的val。
+int longjmp(jmp_buf env, int val);
+如果要编写一个使用非局部跳转的可移植程序，则必须使用volatile关键字。
+
+第八章 进程控制
+进程ID 0是调度进程，也被叫为交换进程。内核的一部分，被称为系统进程。
+进程ID 1是init进程，在内核自举后启动一个UNIX系统。该进程不会终止。
+进程ID 2是精灵进程。负责虚存系统的请页操作。
+
+pid_t fork(void);
+fork创建进程为子进程，函数调用一次，返回两次。两次返回值为0，父进程的返回值为子进程ID，
+子进程获得父进程的数据空间，栈和堆。
+
+fork会影响IO函数之间的关系。若用标准IO库函数，若标准输出连接至终端，则行缓存，否则全缓存。
+所以很有可能造成父进程数据空间复制到子进程中时，缓存数据也被复制到子进程，于是父子进程都带有内容缓存。
+父进程打开的文件描述符被复制到子进程。共享一个文件表项。
+除此之外子进程还继承父进程的如下资源：
+1、实际用户ID，实际组ID
+2、添加组ID
+3、进程组ID
+4、控制终端
+5、工作目录
+6、信号屏蔽
+7、执行时关闭标识位 FD_CLOEXEC
+8、环境
+主要区别
+1、fork返回值
+2、进程ID
+3、父进程不同
+4、父进程的锁，子进程不继承
+5、未决警告，未决信号集置空。
+
+fork主要有两种用法：
+1、一个父进程希望复制自己，执行不同的代码段。
+2、一个进程要执行一个不同程序。
+
+vfork函数的调用和fork相同。
+vfork用于创建一个新的进程，该新进程的目的主要是调用exec执行一个新的程序。
+vfork与fork的区别是，不将父进程的地址空间完全复制到子进程，因为子进程会立即调用exec，于是也就
+不会存访该地址空间。在exec或者exit之前，他在父进程中空间中运行。而且vfork保证子进程优先运行。
+
+调用abort函数，它产生SIGABRT信号，
+无论进程如何终止，最后都会执行相同代码，为相应进程关闭所有打开描述符，释放它所使用的存储器。
+子进程终止时，父进程调用wait或waitpid得到相关信息，进程ID终止状态，CPU时间。之后内核释放终止进程的
+存储器关闭打开的文件。
+
+一个进程终止时，内核逐个检测所有活动进程，来判断它是否正要终止的进程的子进程，如果是，则将该进程的
+父进程ID更改为1，即init进程的ID。
+有init领养的进程发生终止时，init会自动调用一个wait函数来取得其终止状态。
+
+当一个进程终止时，内核向父进程发送SIGCHILD信号。
+pid_t wait(int *statloc)
+pid_t waitpid(pid_t pid,int *statloc, int options)
+pid>0 则等待ID与pid相等的进程
+pid==0 等待组ID等于调用进程组ID的任意进程
+pid<-1 等待其组ID等于pid的绝对值的任一子进程
+statloc和exit返回的类型一样。
+
+
+waitpid提供功能：
+1、waitpid可以等待特定的进程
+2、提供了一个wait的非阻塞版本
+3、可以进行作业控制
+
+int execl(const char *pathname,const char * arg0,...,(char*)0)
+int execv(const char *pathname,char const *arvg[])
+int execle(const char *pathname,const char * arg0,...,char *const envp[])
+int execve(const char *pathname,char *const argv[],char* const envp)
+int execlp(const char * filename,const char *arg0,..)
+int execvp(const char *filename,char * const argv[])
+
+执行exec后，进程不仅能保持类似于子进程的特性，还会保持，信号屏蔽字，文件锁，未决信号。
+除非设置了FD_CLOEXEC标志位，系统默认exec后保持描述符打开。
+这六个函数都会转换为execve的调用。
+
+在exec前后实际用户ID和实际组ID保持不变，而有效ID是否改变则取决于所执行程序文件的设置-用户-ID位置，或组
+的是否设置。
+
+解释器文件，起始行的形式是：
+#！ pathname[option]
+解释器，上述path指定的文件。
+
+解释器，内核识别解释器文件有额外开销。优点：
+1、某些程序用某种语言脚本
+2、效率高
+3、使用其他shell编写shell脚本。
+
+int system(const char *cmdstring)
+system函数中利用了fork，exec和waitpid三个原语。
+
+clock_t times(struct tms *buf);
+返回值为墙上时间。
+struct tms包含了用户CPU时间和系统CPU时间
+
+第九章 进程关系
+每一个允许登录的终端设备，init调用一次fork。
+
+进程组是一个或者多个进程的集合。每一个进程组有一个唯一的进程组ID。
+组长进程ID就是组ID。
+int setpgid(pid_t pid, pid_t pgid)
+该函数可以参加一个现存的进程组或者创建一个新的进程组。
+
+对话期是一个或者多个进程组的集合。
+pid_t setsid(void);
+如果该进程不是进程组组长：
+1、此进程变成对话期首进程。
+2、成为一个新进程组的组长进程。
+3、此进程没有控制终端。
+
+1、一个对话期只有一个控制终端。
+2、建立与控制终端连接的对话首进程称之为控制进程。
+3、只有一个前台进程组，几个后台进程组。
+
+作业控制：允许在一个终端上启动多个作业，控制哪一个作业可以存取该终端，以及哪些作业在后台运行。
+只有前台作业接收终端输入。
+孤儿进程组：该组中每个成员的父进程或者是该组的一个成员，或者不是该组所属对话期的成员。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 第十章 信号
 
@@ -92,3 +298,9 @@ void abort(void)
 
 system忽略SIGINT和SIGQUIT，阻塞SIGCHLD。
 system的返回值是shell的终止状态，他不总是执行命令字符串进程的终止状态。
+
+第十一章 终端IO
+终端工作方式：
+1、规范方式输入处理。以行为单位进行处理。
+2、非规范方式输入处理。不以行为单位处理。
+
