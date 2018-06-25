@@ -1,5 +1,7 @@
 POSIX表示可移植操作系统接口（Portable Operating System Interface of UNIX，缩写为 POSIX ）
 
+
+
 第三章 文件I/O
 文件描述符是一个非负整数。
 int open(const char* pathname, int oflag,...,mode_t)
@@ -43,6 +45,8 @@ int fcntl(int fileds,int cmd,...)
 ioctl函数是I/O操作的杂物箱。
 int ioctl(int filedes,int request,...)
 
+
+
 第七章 UNIX进程的环境
 当内核启动C程序时，在调用main之前先调用一个特殊的启动例程。
 
@@ -64,7 +68,6 @@ C程序存储空间：
 4、栈
 5、堆
 
-
 每个程序都接收到一张环境表，环境表是一个字符指针数组，每个指针包含一个null结束的字符串地址。
 extern char** environ
 char *getenv(const char *name)
@@ -75,6 +78,8 @@ int setjmp(jmp_buf env);
 	直接调用返回值为0，从longjmp跳转过来返回值为非零，即longjmp设置的val。
 int longjmp(jmp_buf env, int val);
 如果要编写一个使用非局部跳转的可移植程序，则必须使用volatile关键字。
+
+
 
 第八章 进程控制
 进程ID 0是调度进程，也被叫为交换进程。内核的一部分，被称为系统进程。
@@ -166,6 +171,8 @@ clock_t times(struct tms *buf);
 返回值为墙上时间。
 struct tms包含了用户CPU时间和系统CPU时间
 
+
+
 第九章 进程关系
 每一个允许登录的终端设备，init调用一次fork。
 
@@ -191,24 +198,7 @@ pid_t setsid(void);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 第十章 信号
-
 信号是软中断。每个信号都有一个名字。这些名字都以三个字符 SIG开头。
 头文件<signal.h>中，这些信号都被定义为正整数。
 
@@ -303,4 +293,104 @@ system的返回值是shell的终止状态，他不总是执行命令字符串进
 终端工作方式：
 1、规范方式输入处理。以行为单位进行处理。
 2、非规范方式输入处理。不以行为单位处理。
+
+第十四章 进程间通信
+IPC(InterProcess Communication)
+
+int pipe(int filedes[2]);
+管道是IPC最老的形式，有两种限制：
+1、他们是半双工的。数据只能在一个方向上流动
+2、他们只能在公共祖先的进程间使用。
+filedes[0]的文件描述符可读
+filedes[1]的文件描述符可写
+
+如果写一个读端被关闭的管道，会产生信号SIGPIPE，如果忽略该信号或者捕捉该信号。errno设置为EPIPE
+常数PIPE_BUF规定了内核管道中缓存器的大小。
+
+
+创建一个连接到另一个进程的管道。
+File *popen(const char * cmdstring, const char *type)
+成功返回文件指针，出错返回NULL。cmdstring都会以sh -c cmdstring形式进行扩充。
+该函数先执行fork，然后调用exec以执行cmdstring。type为w或者r表示文件指针连接到cmdstring的输出或者输入。
+int pclose(file * fp)
+关闭标准IO流，等待命令结束，返回shell终止状态。
+
+当一个程序产生某个过滤程序的输入，同时又读取该过滤程序的输出时，则该过滤程序称之为协同进程。
+int setvbuf(FILE *stream ,char *buffer, int mode , size_t size)
+buffer是分配给用户的缓冲，mode指定缓冲格式。size是缓冲大小。成功返回0，否则非零。
+
+FIFO称为命名管道。使得不相关的进程也可以交换数据。也是一种文件类型。
+
+int mkfifo(const chart * pathname, mode_t mode);
+成功返回0，出错返回-1
+
+非阻塞的FIFO，设置了O_NONBLOCK，只读打开立即返回。若没有其他进程为读而打开，则只写打开将出错返回。
+若没有设置非阻塞标志，只读打开要阻塞到某个其他进程为写打开此FIFO。
+
+FIFO用途：
+1、由shell命令，以便将数据从一条管道线传送到另外一条。
+2、用于客服-服务端应用程序。
+
+系统五 IPC(system V IPC)
+消息队列、信号量以及共享存储器之间。
+每个内核中的IPC结构都用一个非负整数的标识符加以引用。
+IPC标识符不是最小整数，而是逐渐加1，直到最大值之后，回转到0。
+
+消息队列：
+消息队列是消息的链接表，存放在内核中并由消息队列标识符标识。
+int msgget(key_t key, int flag) 功能是打开一个现存队列或者是创建一个新队列。
+若成功则返回消息队列ID，若出错则为-1
+int msgctl(int msqid, int cmd, struct msqid_ds * buf)
+该函数类似ioctl函数，可以对消息队列进行多种操作。
+int msgsnd(int msqid, const void *ptr, size_t nbytes, int flag);
+msgrcv从队列中取用消息
+int msgrcv(int msqid, void *ptr,size_t nbytes, long type ,int flag)
+
+其中void *ptr中存放了一个长整型数，用以存放返回的消息类型。跟随的是存放消息的缓存。
+nbytes表示数据缓存的长度。flag可以指定为IPC_NOWAIT。类似于文件IO的非阻塞I/O。
+
+信号量(有名信号量)：
+信号量分两种，一种是无名信号量，一种是有名信号量。无名信号量一般用于线程间同步或互斥，而有名信号量
+一般用于进程间同步或互斥。它们的区别和管道及命名管道的区别类似，无名信号量则直接保存在内存中，而有
+名信号量要求创建一个文件。
+有名信号量与已经介绍过的IPC机构(管道，FIFO以及消息队列)不同，他是一个计数器，用于多进程对共享数据对
+象的存取。信号量通常实在内核中实现的。
+int semget(key_t key, int nsems ,int flag)
+成功则返回信号量ID，若出错则返回-1。
+int semctl(int semid, int semnum, int cmd, union semun arg);
+semop自动执行信号量集合上的操作数组。
+int semop(int semid, struct sembuf* semoparray[],size_t nops);
+若成功则为0，若出错则为-1。
+sempoparray是一个操作数组。
+
+
+
+共享存储：
+允许两个或者多个进程共享一给定的存储区。最快的一种IPC方式。
+int shmget(key_t key, int size, int flag)
+若成功则为共享内存ID，若出错则为-1。
+int shmctl(int shmid, int cmd, struct shmid_ds * buf);
+若成功则为0，出错则为-1。
+创建了一个共享存储段，就可以调用shmat将其连接到它的地址空间中。
+void * shmat(int shmid, void *addr, int flag);
+成功则为指向共享存储段的指针，若出错则为-1。
+若是对共享存储段的操作已经结束，则调用shmdt脱接该段。
+int shmdt(void *addr)
+若成功则返回0，若是出错则返回-1。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
