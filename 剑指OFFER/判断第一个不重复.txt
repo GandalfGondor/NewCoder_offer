@@ -1,34 +1,36 @@
-/*请实现一个函数用来找出字符流中第一个只出现一次的字符。例如，当从字符流中只读出前两个字符"go"时，第一个只出现一次的字符是"g"。当从该字符流中读出前六个字符“google"时，第一个只出现一次的字符是"l"。*/
-class Solution
-{
+class Solution {
 public:
-  //Insert one char from stringstream
-    vector<char> v;
-    void Insert(char ch)
-    {
-         v.push_back(ch);
-    }
-  //return the first appearence once char in current stringstream
-    char FirstAppearingOnce()
-    {
-        int i=0;
-        int j = 0;
-        for(i;i<v.size();i++)
-        {
-            for(j=0;j<v.size();j++)
-            {
-                if(j == i)
-                    continue;
-                else
-                {
-                    if(v[j] == v[i])
-                        break;
-                }
-            }
-            if(j == v.size())
-                return v[i];
-        }
-        return '#';
-    }
+    // Parameters:
+    //        numbers:     an array of integers
+    //        length:      the length of array numbers
+    //        duplication: (Output) the duplicated number in the array number
+    // Return value:       true if the input is valid, and there are some duplications in the array number
+    //                     otherwise false
+    void swap(int numbers[], int i,int j)
+{
+	int temp = numbers[i];
+	numbers[i] = numbers[j];
+	numbers[j] = temp;
+}
 
+bool duplicate(int numbers[], int length, int* duplication) {
+    int i = 0;
+    if(numbers == nullptr || length == 0)
+         return 0;
+	for(i = 0; i<length;++i)
+	{
+		while(numbers[i]!=i)
+		{
+			if(numbers[i] == numbers[numbers[i]] && i!=numbers[i])
+			{
+				*duplication = numbers[i];
+				return true;
+			}
+			if(numbers[i]!= i)
+				swap(numbers,i,numbers[i]);		
+		}
+	}
+	return false;
+	
+}
 };
