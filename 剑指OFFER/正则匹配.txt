@@ -1,67 +1,32 @@
-#include<iostream>
-#include<vector>
-#include<string>
-using namespace std;
-
-bool match(char* str, char* pattern)
+/*请实现一个函数用来匹配包括'.'和'*'的正则表达式。模式中的字符'.'表示任意一个字符，而'*'表示它前面的
+字符可以出现任意次（包含0次）。 在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串"aaa"与模
+式"a.a"和"ab*ac*a"匹配，但是与"aa.a"和"ab*a"均不匹配*/
+class Solution {
+public:
+bool core(char* str, char* pattern)
 {
-
-	int i = 0;
-	int j = 0;
-	char temp;
-	do
+	    if(*str == '\0' && *pattern == '\0')
+		     return true;
+        if(*str != '\0' && *pattern == '\0')
+        	return false;
+	if(*(pattern+1) == '*')
 	{
-		if (str[i] == pattern[j] && pattern[j + 1] != '*')
-		{
-			j++;
-			continue;
-		}
-		if (str[i] == pattern[j] && pattern[j + 1] == '*')
-		{
-			while (str[i] == pattern[j])
-			{
-				i++;
-			}
-			j = j + 2;
-			i--;
-			continue;
-		}
-		if (pattern[j] == '.'&&pattern[j+1]=='*')
-		{
-			temp = str[i];
-			while (str[i] == temp)
-			{
-				i++;
-			}
-			i--;
-			j=j+2;
-			continue;
-		}
-		if (pattern[j] == '.'&&pattern[j + 1] != '*')
-		{
-			j++;
-			continue;
-		}
-		if (pattern[j] != str[i] && pattern[j + 1] == '*')
-		{
-			j = j + 2;
-			i--;
-			continue;
-		}
-		if (pattern[j] != str[i]&& pattern[j + 1] != '*')
-			return false;
-
-	}while (str[i++] != '\0');
-	if (pattern[j] == '\0')
-		return true;
-	else return false;
+		if((*pattern=='.' && *str!='\0') || *pattern == *str)
+			return core(str+1,pattern+2)||core(str+1,pattern)||core(str,pattern+2);
+        else
+			return core(str,pattern+2);
+		
+	}
+	else if((*pattern == '.'&&*str!='\0') || *pattern== *str)
+		return core(str+1,pattern+1);
+	return false; 
 }
-int main()
+
+bool match(char *str,char *pattern)
 {
-
-	char* str = ""; 
-	char* pattern = ".*";
-	bool b = match(str,pattern);
-
-	return 1;
+	if(str == NULL ||pattern == NULL)
+		return false;
+	return core(str,pattern);
 }
+
+};
