@@ -1,0 +1,57 @@
+在40亿个没有排序的无符号整数中，我们如何快速判断某个无符号整数是否在这40亿个数中？
+
+首先计算利用int型存储每个数据的成本：
+1GB = 1024*1024*1024；40亿即为4*4GB容量，所以选用BitMap方法来进行存储。
+但是如果一个字节每一位都用到，则总共会用1/2GB容量。还是可以接受的。
+利用size_t表示每个数。可以创建一个vector<size_t>来记录所有数据。
+对于任意一个数x，x / 32对应着它在vector的第几个位置，x % 32对应它的比特位。
+可以看出Bitmap对于每一个可能的整型值，通过直接寻址的方式进行映射，相当于使用了一个哈希函数，
+具体函数表示法如下所示：
+class BitMap
+{
+public:
+    BitMap(size_t num)
+    {
+        _v.resize((num >> 5) + 1); // 相当于num/32 + 1
+    }
+
+    void Set(size_t num) //set 1
+    {
+        size_t index = num >> 5; // 相当于num/32
+        size_t pos = num % 32;
+        _v[index] |= (1 << pos);
+    }
+
+    void ReSet(size_t num) //set 0
+    {
+        size_t index = num >> 5; // 相当于num/32
+        size_t pos = num % 32;
+        _v[index] &= ~(1 << pos);
+    }
+
+    bool HasExisted(size_t num)//check whether it exists
+    {
+        size_t index = num >> 5;
+        size_t pos = num % 32;
+        bool flag = false;
+        if (_v[index] & (1 << pos))
+            flag = true;
+        return flag;
+
+    }
+
+private:
+    vector<size_t> _v;
+}; 
+
+
+
+布隆过滤器：
+Bloom Filter本质上是位向量（bit vector）与哈希结合的产物。哈希表可以看做一对一的映射，为了解决哈
+希冲突，一个元素通过哈希映射成的对象比较大。而布隆过滤器则采取一种tradeoff方案，使用k个哈希函数将
+元素分别映射成 k 个占用空间少的对象——布隆过滤器中这些对象为位向量中的某一位，这些单个对象允许冲突。
+一个元素只有 k 个哈希映射的位向量位置全部置位才表示此元素出现在集合中。
+
+BF的优点是空间效率和查询效率都远远超过一般的算法，缺点是有一定的误判率和删除困难，但是没有漏判的情形。
+一般数据集越小，误差率越小，位数越大，误差率越小。但是哈希函数的个数不能简单的判断，可以计算出来为
+空间大小为:m=-(d*lnp)/(ln2)^2 ；d为数据空间，p为限定的误差概率。

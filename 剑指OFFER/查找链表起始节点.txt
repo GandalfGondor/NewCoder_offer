@@ -1,6 +1,5 @@
+/*一个链表中包含环，请找出该链表的环的入口结点。*/
 /*
-一个链表中包含环，请找出该链表的环的入口结点。
-
 struct ListNode {
     int val;
     struct ListNode *next;
@@ -11,25 +10,45 @@ struct ListNode {
 */
 class Solution {
 public:
- ListNode* EntryNodeOfLoop(ListNode* pHead)
+int LoopLength(ListNode* pHead)
 {
-	vector<ListNode*> v;
-	v.push_back(pHead);
-	ListNode* p = pHead->next;
-	ListNode* temp;
-	int i = 0;
-	for (;p != nullptr;p = p->next)
+	ListNode* temp = pHead;
+	ListNode* temp2 = pHead->next;
+	while(temp!=temp2)
 	{
-		for (i = 0; i < v.size(); i++)
-		{
-			if (v[i] == p)
-			{
-				return p;
-			}
-		}
-		v.push_back(p);
+        if(temp2 == nullptr || temp2->next == nullptr)
+            return 0;
+		temp = temp->next;
+		temp2 = temp2->next->next;
 	}
-	return nullptr;
-
+	int res = 1;
+	temp2= temp2->next;
+	while(temp != temp2)
+	{
+		temp2 = temp2->next;
+		++res;
+	}
+	
+	return res;
+}
+ListNode* EntryNodeOfLoop(ListNode* pHead)
+{
+    if(pHead == nullptr)
+          return nullptr;
+	ListNode* temp = pHead;
+	ListNode* temp2 = pHead;
+	int len = LoopLength(pHead);
+    if(len == 0)
+         return nullptr;
+	while(len--)
+	{
+		temp2 = temp2->next;
+	}
+	while(temp != temp2)
+	{
+		temp2 = temp2->next;
+		temp = temp->next;
+	}
+	return temp;
 }
 };
