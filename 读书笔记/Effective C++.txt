@@ -1,0 +1,47 @@
+导读：
+
+被声明为explicit的构造函数通常比其non-explicit更受欢迎，因为他们禁止编译器执行非预期的类型转换。
+构造调用operator= 是调用的copy构造函数。只有当新对象被定义时，调用构造函数，没有新对象则调用赋值函数。
+
+值传递用户自定义类型通常是坏主意，pass-by-reference-to-const往往是比较好的选择。
+
+第一章 让自己习惯C++
+尽量用const，enum，inline替换#define，也可以认为用编译器替换预处理器。
+enum不能取地址。
+对于单纯常量，最好以const对象或者enums替换#defines。
+对于形似函数的宏，最好用inline替换#define。
+const写在类型之前 或者  类型之后星号之前，两种写法相同。
+
+const成员函数：
+1、他们使得class接口比较容易被理解。得知按个函数可以改动对象，哪个函数不能改动对象。
+2、他们使操作const对象变得可能。
+
+两个成员函数如果只是常量性不同，可以被重载。
+mutable可以释放掉non-static成员变量的bitwise constness约束。
+常量性转除。
+const_cast<char&>(static_cast<const TextBlock&>(*this)[position])
+将op[]返回值的const去除。给this的对象加上const限制。
+const的作用：
+1、在指针和迭代器上；
+2、在指针、迭代器和reference指的对象上。
+3、在函数的参数和返回类型上。
+4、在local变量身上。
+5、在成员函数身上。
+
+当const和non-const成员函数有着等价地实现时，令non-const版本调用const版本可避免代码重复。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
