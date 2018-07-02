@@ -5,6 +5,7 @@
 
 值传递用户自定义类型通常是坏主意，pass-by-reference-to-const往往是比较好的选择。
 
+
 第一章 让自己习惯C++
 尽量用const，enum，inline替换#define，也可以认为用编译器替换预处理器。
 enum不能取地址。
@@ -18,9 +19,11 @@ const成员函数：
 
 两个成员函数如果只是常量性不同，可以被重载。
 mutable可以释放掉non-static成员变量的bitwise constness约束。
+
 常量性转除。
 const_cast<char&>(static_cast<const TextBlock&>(*this)[position])
 将op[]返回值的const去除。给this的对象加上const限制。
+
 const的作用：
 1、在指针和迭代器上；
 2、在指针、迭代器和reference指的对象上。
@@ -42,6 +45,7 @@ C++保证，函数内的local static对象会在 该函数调用期间或者首�
 2、构造函数最好使用成员初值列，而不要在构造函数本体内使用赋值操作。
 3、为免除“跨编译单元之初始化次序”，以local static对象替换non-local static对象。
 
+
 第二章：构造，析构和赋值运算
 如果打算在一个“内涵regerence成员”的class内支持赋值操作，你必须定义copy assignment操作符。面对
 “内涵const成员”的class ，编译器反应也是一样。
@@ -58,6 +62,59 @@ classes如果不是基类或者需要多态性，就不应该声明析构函数�
 如果析构函数可能会出现异常，最好将可能发生异常的功能，重新开辟一个函数，供用户调用。在析构时，判断是否
 需要调用该函数。如果不需要调用该函数，则可以直接析构。总之就是希望用户可以第一时间调用并处理该函数。否则
 如果异常发生，只能强迫结束程序或者吞下异常。
+
+base class构造期间virtual函数绝对不会下降到derived classes阶层。即在base class构造期间，virtual不会
+产生多态机制。
+所以要记住在构造和析构期间不要调用virtual函数，因为这类调用从不下降至derived class。
+
+operator= 即赋值操作符返回一个reference to *this。
+确保当对象自我复制时operator= 有良好的行为。其中技术包括 来源对象和目标对象的地址。调整语序，以及copy-
+and-swap。
+
+设计良好的面向对象系统会将对象内部封装起来，只留两个函数负责对象拷贝。那便是带着适切名称的copy和
+copy assignment函数操作符。
+
+编写copying函数，必须确保
+1、复制所有local成员变量。
+2、调用所有base classes内的适当copying函数。
+
+不要尝试以某一个copying函数实现另一个copying函数。应该将共同机能放进第三个函数中，并由两个copying函数
+实现。
+
+
+第三章 资源管理
+以对象管理资源两个关键想法：
+1、获得资源后立刻放进管理对象内。   RAII：资源获取即初始化。
+2、管理对象运用析构函数确保资源被释放。	
+
+1、为防止资源泄漏，请使用RAII对象，他们在构造函数中获得资源并且在析构函数中释放。
+2、两个常被使用的RAII class是shared_ptr和auto_ptr，尽量选shared_ptr。
+
+如果需要赋值RAII对象，需要考虑：
+1、禁止复制。
+2、对底层资源祭出“引用计数法”
+
+APIs往往要求访问原始资源，所以每一个RAII class应该提供一个取得其所管理之资源的办法。
+对原始资源的访问又显示转换比较安全。隐式转换比较方便。
+
+如果在new表达式中使用[]，必须在相应的delete表达式中使用[]。如果你在new表达式中不使用[]，一定不要在
+相应的delete表达式中使用[]。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

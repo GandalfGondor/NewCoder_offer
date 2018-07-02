@@ -237,8 +237,9 @@ RTTI正是因为支持EH而获得的副产品
 catch子句中对于exception object的任何改变都是局部性的。	
 
 RTTI
+RTTI机制提供了一个安全的downcast的设备。只对多态类型有效。
 一个type safe downcast必须在执行期对指针有所查询，看看是否指向所表现的类型。
-RTTI只对多态类型有效。
+
 所有多态类都维护了一个指针，指向虚函数表，我们把相关的RTTI object地址放进virtual table中。	
 dynamic——cast 运算符可以在执行期决定真正类型。
 返回地址，表示动态类型被确认。

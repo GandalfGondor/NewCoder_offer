@@ -1,4 +1,5 @@
-/*请实现一个函数，用来判断一颗二叉树是不是对称的。注意，如果一个二叉树同此二叉树的镜像是同样的，定义其为对称的
+/*判断是否对称*/
+/*
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -10,21 +11,22 @@ struct TreeNode {
 */
 class Solution {
 public:
+bool iscore(TreeNode* pl,TreeNode* pr)
+{
+	if(pl == NULL && pr == NULL)
+		return true;
+    if(pl == NULL || pr == NULL)
+		return false;
+	if(pl->val == pr->val)
+		return iscore(pl->right,pr->left) && iscore(pl->left,pr->right);
+	else return false;
+}
+
 bool isSymmetrical(TreeNode* pRoot)
 {
-	if (pRoot == nullptr)
+	if(pRoot == NULL)
 		return true;
-	return isSymmetricalcore(pRoot->left, pRoot->right);
+	return iscore(pRoot->left,pRoot->right);
 }
-bool isSymmetricalcore(TreeNode* pRoot, TreeNode* copy)
-{
-	if (pRoot == nullptr&&copy == nullptr)
-		return true;
-	if (pRoot == nullptr||copy == nullptr)
-		return false;
-	if (pRoot->val != copy->val)
-            return false;
-    return isSymmetricalcore(pRoot->left, copy->right)&& isSymmetricalcore(pRoot->right, copy->left);
-	
-}
+
 };
