@@ -100,15 +100,68 @@ APIs往往要求访问原始资源，所以每一个RAII class应该提供一个
 如果在new表达式中使用[]，必须在相应的delete表达式中使用[]。如果你在new表达式中不使用[]，一定不要在
 相应的delete表达式中使用[]。
 
+跨越语句的各项操作没有重新排列的自由。
+
+第四章 设计与声明
+
+预防错误：
+1、利用类型系统。
+2、限制类型可以做和不可以做的事。
+
+解决对象切割问题，即调用函数参数为拥有虚函数的类对象，用by-reference-to-const方式比较好。
+
+基本上只有内置类型和STL迭代器和函数对象，pass-by-value成本较小。其他任何东西，请尽量用
+by-reference-to-const。
+
+任何一个函数如果返回一个reference指向某个local对象，都将一败涂地。
+
+返回一个reference和返回一个object之间选择，需要仔细挑出正确的选项。
+1、一定不要返回一个指向local stack的pointer或者reference
+2、不要返回一个指向heap-allocated对象
+3、不要返回一个指向local static的pointer或者reference。
+
+从封装角度来看，只有两种访问权限：private(提供封装)和不提供封装。
+
+将所有便利函数放在多个头文件内但隶属于同一个命名空间，意味客户可以轻松扩展这一组便利函数。
+但是class定义式对于客户而言是不能扩展的。
+可以的话，宁以non-member non-friend函数替换member函数。这样可以增加封装性和包裹弹性和机能扩充。
+
+如果你需要为某个函数的所有参数(包括被this指针所指的那个隐喻参数)进行类型转换，那么这个函数必须
+是一个non-member。
+
+针对调用swap函数。
+1、当std::swap对你的类型效率不高时，提供一个swap成员函数，并确定这个函数不抛出异常。
+2、如果你提供一个member swap，也该提供一个non-member swap用来调用前者。对于classes，也应该特化
+	std::swap。
+3、调用swap时应该针对std::swap使用using声明式，然后调用swap并且不带任何“命名空间资格修饰”。
+4、为“用户定义类型”进行std templates全特化是好的，但千万不要尝试在std内加入对std而言是全新的东西。
 
 
+第五章 实现
+尽可能延后变量定义式的出现。这样做可增加程序的清晰度并且改善程序效率
 
+C风格的转型动作看起来像这样：
+(T)expression
+T(expression)
 
+C++提供四种新式转型：
+const_cast<T>(expression)
+通常被用来将对象的常量性转除。唯一拥有此能力的C++风格转型。
+dynamic_cast<T>(expression)
+主要用来安全向下转型，也就是用来决定某对象是否归属继承体系中的某个类型。
+reinterpret_cast<T>(expression)
+意图执行低级转型，实际动作可能取决于编译器，所以不可移植。
+static_cast<T>(expression)
+用来强迫隐式转换，例如将non-const对象转换为const对象，或将int转换为double等等。也可以还行反向转换，
+将void* 指针转换为typed指针。将基类指针转换为派生类指针。无法将const转换为non-const。
 
+应该避免转型，特别是在注重效率的代码中避免dynamic_cast，如果有个设计需要转型动作，试着发展无需转型
+的设计。
+如果转型是必须的，试着将它隐藏于某个函数背后。客户可以调用该函数，而不需将转型放进自己的代码。
+宁可使用C++-style式转型，不要使用旧式转型。
 
-
-
-
+	
+	
 
 
 
