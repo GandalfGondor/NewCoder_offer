@@ -1,4 +1,5 @@
 /*请实现一个函数按照之字形打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右至左的顺序打印，第三行按照从左到右的顺序打印，其他行以此类推。
+/*
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -10,43 +11,48 @@ struct TreeNode {
 */
 class Solution {
 public:
-vector<vector<int> > s;
-vector<vector<int> > Print(TreeNode* pRoot) 
-{
-	if (pRoot == nullptr)
-		return s;
-	Printcore(pRoot, 1);
-	int i = 0;
-	int j = 0;
-	int temp = 0, len = 0;
-	for (i; i < s.size(); i++)
+vector<vector<int>> Print(TreeNode* pRoot) {
+	vector<vector<int>> res;        
+	if(pRoot == NULL)
+		return res;
+	vector<TreeNode*> odd;
+	vector<TreeNode*> even;
+	even.push_back(pRoot);
+	vector<int> val;
+	int flag=0,o=0,e=0;
+	for(;!(odd.empty() && even.empty());++flag)
 	{
-		if ((i % 2))
+		if(flag%2)
 		{
-			len = s[i].size();
-			for (j=0; j < (len - j-1); j++)
+			even.clear();
+			for(o = odd.size()-1;o>=0;--o)
 			{
-				temp = s[i][j];
-				s[i][j] = s[i][len - 1 - j];
-				s[i][len - 1 - j] = temp;
+				if(odd[o]->right!=NULL)
+					even.push_back(odd[o]->right);
+				if(odd[o]->left!=NULL)
+					even.push_back(odd[o]->left);
+				val.push_back(odd[o]->val);
 			}
 		}
-	}
-	return s;
-}
-void Printcore(TreeNode* pRoot,int i)
-{
-	if (pRoot == nullptr)
-		return;
-	if (s.size() < i)
-	{
-		vector<int> n;
-		s.push_back(n);
+		else
+		{
+			odd.clear();
+			for(e = even.size()-1;e>=0;--e)
+			{
+				if(even[e]->left!=NULL)
+					odd.push_back(even[e]->left);
+				if(even[e]->right!=NULL)
+					odd.push_back(even[e]->right);
+				val.push_back(even[e]->val);
+			}
+		}
+		if(!val.empty())
+			res.push_back(val);
+		val.clear();
+		if(odd.empty() && even.empty())
+			break;
 	}
 
-	s[i-1].push_back(pRoot->val);
-	Printcore(pRoot->left, i+1);
-	Printcore(pRoot->right, i+1);
+	return res;
 }
-    
 };

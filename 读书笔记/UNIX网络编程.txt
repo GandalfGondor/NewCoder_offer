@@ -1,0 +1,122 @@
+第一章 简介
+bzero不是一个ANSI C函数，它起源于berkeley网络编程代码，不过我们在整本书中使用它而不用memset函数，因为
+bzero带两个参数比memset带三个参数更好记忆。
+
+网络各层对等实体之间的交换单位信息称为协议数据单元，PDU，分节(segment)就是对应于TCP传输层的PDU。
+每层PDU通过由紧邻下层提供给本层的服务接口，作为下层的服务数据单元SDU传递给下层。
+应用层实体间交换的PDU称为应用数据，其中TCP应用进程之间交换的是没有长度限制的单个双向字节流。
+外出接口最大传输单元MTU。
+
+exit终止程序运行，Unix在一个进程终止时总是关闭该进程所有打开的描述符，我们的TCP套接字就此关闭。
+
+errno的值只在函数发生错误的时候设置。全局变量中存放errno值对于共享所有全局变量的多个线程并不合适。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+第四章 基本TCP套接字编程
+
+执行网络I/O，一个进程必须做的事情就是调用socket函数
+#include<sys/socket.h>
+int socket(int family, int type, int protocol);
+如果成功则返回非负描述符，若是出错则为-1。
+
+int family参数用以指明协议族；
+	AF_INET		IPV4协议
+	AF_INET6	IPV6协议
+int type参数指明套接字类型；
+	SOCK_STREAM		字节流套接字
+	SOCKET_DGRAM	数据报套接字
+	SOCKET_RAW 原始套接字
+int protocol 参数应该设置位某个协议类型常值，或者设为0；、
+	IPPROTO_CP		TCP传输协议
+	IPPROTO_UDP		UDP传输协议
+	
+AF_XXX和PF_XXX区别
+AF前缀表示地址族，PF表示协议族
+
+int connect(int sockfd,const struct sockaddr *servaddr, socklen_t addrlen);
+若成功则为0，若出错则为-1
+sockfd		是由socket返回的套接字描述符
+servaddr	是一个指向套接字地址结构的指针和该结构的大小
+addrlen		地址结构的大小
+
+connect出错情况：
+1、若没有收到SYN分节，则返回ETIMEDOUT错误。
+2、若收到RST，则表明该服务器主机对应的端口没有进程等待与之链接，这是一种硬错误，立马返回
+ECONNREFUSED错误。
+3、若客户发出的SYN在中间的某个路由器上引发一个“destination unreachable”ICMP错误，则发生软错误，客户
+内核保存该消息，并按照第一种情况所述的时间间隔继续发送SYN。超过某个阈值时间，则返回ENETUNREACH或者
+EHOSTUNREACH错误返回给进程。
+
+注意：connect函数导致当前套接字从CLOSED状态转移到SYN_SENT状态，若成功则再转移到ESTABLISHED状态。若
+connect失败则该套接字不可用，必须关闭，我们不能对这样套接字再次调用connect函数。
+
+IPv4地址长度是32位，IPv6地址长度是128位。端口号都是16位。
+
+#include<sys/socket.h>
+int bind(int sockfd, const struct sockaddr *myadd, socklen_t addrlen);
+第二个参数是一个指向特定于协议地址结构指针，第三个参数是该地址结构的长度。
+bind函数返回一个常见错误是EADDRINUSE。
+
+#include<sys/socket.h>
+int listen(int sockfd, int backlog);若成功则返回0，若出错则返回-1
+1、第一个参数当socket函数创建一个套接字时，他被假设为一个主动套接字，listen函数把一个未连接的套接字
+转换成一个被动套接字，指示内核应该接受指向该套接字的连接请求。
+2、第二个参数规定了内核应该为相应套接字排队的最大链接数。
+
+为了理解backlog参数，必须知道内核为任何一个给定的监听套接字维护两个队列：
+1、未完成链接队列。处于SYN_RCVD状态。等待完成相应的TCP三次握手。
+2、已完成链接队列。处于ESTABLISHED状态。
+即两个队列之和不能超过backlog。
+当客户SYN到达，TCP在未完成链接队列中创建一个新项，然后响应三次握手SYN+ACK，等待完成或者超时。若是正常
+完成则直接从未完成队列移动到完成队列队尾。
+
+listen函数的backlog参数为两个队列总和最大值。或者他们的1.5倍。一直没有定论。
+现在backlog为5已经不够用了，所以一般指定一个比内核能够支持的值还大的值，内核可以自动截断。
+当队列满时，客户的SYN到达之后，TCP应该忽略该分节，不能发送RST，使得客户TCP重发SYN。
+
+#include<sys/socket.h>
+int accept(int sockfd, struct sockaddr* cliaddr, socklen_t *addrlen);
+若成功则为非负描述符，若出错则为-1。
+参数cliaddr和addrlen用来返回已经连接的对端进程的协议地址。addrlen是值-结果参数。
+
+当进程调用accept函数时，已完成链接队列中的队头项将返回给进程，或者如果该队列为空，那么进程进入休眠。
+
+如果accept成功，那么返回值是由内核自动生成的一个全新描述符，代表与所返回客户的TCP连接。accept函数的
+第一个sockfd为监听套接字，称他的返回套接字为已经连套接字描述符。
+
+一个服务器通常只创建一个监听套接字描述符，区分这两个描述符很重要。内核为每个由服务器进程接受的客户连
+接创建一个已连接套接字。
+
+
+
+
+
+
+
+
+
+
+
