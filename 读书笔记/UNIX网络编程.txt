@@ -11,26 +11,114 @@ exit终止程序运行，Unix在一个进程终止时总是关闭该进程所有
 
 errno的值只在函数发生错误的时候设置。全局变量中存放errno值对于共享所有全局变量的多个线程并不合适。
 
+第二章 传输层：TCP、UDP和SCTP
+绕过传输层直接使用IP层协议，这种技术称为原始套接字，极少使用。
+
+
+TCP含有用于动态估算客户和服务器之间的往返时间(RTT)的算法。以便知道它等待一个确认需要多少时间。
+
+在应用进程调用close或者unix进程exit或者从main return，都会在所有TCP连接上发送一个FIN。
+
+重点TIME_WAIT状态：
+执行主动关闭的那端经历的这个状态。该端点停留在这个状态的持续时间是最长声明期（maximum segment 
+lifetime，MSL）的两倍。TTL最大值为255，尽管他不是时间，但是一般认为最大跳限的分组在网络中存在
+的时间不可能超过2MSL。
+TCP必须正确处理迷途重复分组或者漫游重复分组。
+TIME_WAIT存在的理由：
+1、可靠地实现TCP全双工连接的终止。
+2、允许老的重复分节在网络中消失。
+
+多个进程可能同时使用TCP，UDP和SCTP这3种传输层协议中的任何一种。这三种协议都使用16整数的端口号来区分
+这些进程。
+
+端口划分：
+1、众所周知端口0~1023：不论是TCP还是UDP端口号80都被赋予Web服务器。
+2、已登记端口：1024~49151	
+3、动态端口、临时端口：49152~65535	动态的，私有的。
+
+一个TCP链接的套接字对是一个定义该连接的两个端点的四元组：本地IP地址，本地TCP端口号，外地IP地址，外地TCP
+端口号。唯一标识一个网络上的每个TCP链接。
+
+并发服务器中主服务器通过派生一个子进程来处理每个新的链接。
+TCP无法仅仅通过查看目的端口号来区分外来的分节到不同的端点。
+
+IPv4主机对其产生的数据报执行分片，IPv4路由器则对其转发的数据报执行分片。
+IPv6主机对其产生的数据报执行分片，IPv6路由器不对其转发的数据报执行分片。
+
+IPv4数据报最大大小是65536字节，包括IPv4首部。
+IPv6数据报的最大大小是65575字节，包括40字节的IPv6首部。
+以太网MTU是常见的路径MTU，为1500字节。
+
+MSS用于向对端TCP通告每个分节中能发送的最大TCP数据量。MSS=MTU-IP首部-TCP首部。
+以太网中IPv4的MSS一般为1460。互联网中TCP默认536，是IPv4最小重组缓冲区字节数576-20-20。
+MSS目的就是试图避免分片。
+
+最小重组缓冲区大小：IPv4为576字节。
+TCP必须为已发送的数据保留一个副本，直到它被对端确认为止。
 
 
 
 
+第三章：套接字编程简介
+IPv4地址和TCP或者UDP端口号在套接字地址结构中总是以网络字节序来存储。
 
+通用套接字地址结构：
+struct sockaddr{
+uint8_t			sa_len;
+sa_family_t 	sa_family;
+char			sa_data[14];
+}
+所以函数套接字被定义为指向通用套接字地址结构的一个指针。
 
+IPv4套接字地址结构：
+struct in_addr{
+in_addr_t		s_addr;
+};
+struct sockaddr_in{
+uint8_t			sin_len;
+sa_family_t		sin_family;
+in_port_t		sin_port;
+struct in_addr	sin_addr;
+char 			sin_zero[8];
+};
 
+IPv6套接字地址结构
+struct in6_addr{
+unit8_t			sa_addr[16];
+}
+struct sockaddr_in6{
+uint8_t			sin6_len;
+sa_family_t		sin6_family;
+in_port_t 		sin6_port;
+uint32_t		sin6_flowinfo;
+struct in6_addr	sin6_addr;
+uint32_t		sin6_scope_id;
 
+}
 
+地址结构大小数据类型实际上是socklen_t而不是int。
+从进程到内核传递套接字地址结构的函数有3个：bind、connect和sendto。
+从内核到进程传递套接字地址结构的函数有4个：accept、recvfrom、getsockname和getpeername
+这四个函数其中两个参数是指向某个套接字地址结构的指针和指向表示该结构大小的整数变量的指针。
+当函数调用时，告诉内核结构大小，防止写时越界；当函数返回时，结构大小又是一个结果，告诉进程内核在
+结构中究竟存储多少信息。这种参数称之为值-结果参数。
 
+一种是将低序字节存储在起始地址，这称为小端字节序；另一种方法是将高序字节序存储在起始地址，称为大端序。
+网际协议使用大端序来传送多字节整数。
 
+uint16_t	htons(uint16_t	host16bitvalue)
+uint32_t	htonl(uint32_t	host32bitvalue)
+uint16_t	ntohs(uint16_t	net16bitvalue);
+uint32_t	ntohl(uint32_t	net32bitvalue);
 
+inet_pton和inet_ntop函数对于IPv4和IPv6地址都适用。
+函数名中p表示表达式，n表示数值。
+int inet_pton(int family, const char * strptr, void* addrptr);
+若成功则为1，若输入不是有效的表达格式则为0，若出错则为-1；
+const char* inet_ntop(int family, const void* addrptr, char* strptr, size_t len);
+若成功则为指向结果的指针，若出错则为NULL。
 
-
-
-
-
-
-
-
+查询错误，若errno == EINTR，如果发生该错误则继续进行读或者写操作。
 
 
 
@@ -79,6 +167,9 @@ IPv4地址长度是32位，IPv6地址长度是128位。端口号都是16位。
 int bind(int sockfd, const struct sockaddr *myadd, socklen_t addrlen);
 第二个参数是一个指向特定于协议地址结构指针，第三个参数是该地址结构的长度。
 bind函数返回一个常见错误是EADDRINUSE。
+通配地址，内核选择IP地址。
+端口0，内核选择端口。
+
 
 #include<sys/socket.h>
 int listen(int sockfd, int backlog);若成功则返回0，若出错则返回-1
@@ -97,6 +188,14 @@ listen函数的backlog参数为两个队列总和最大值。或者他们的1.5�
 现在backlog为5已经不够用了，所以一般指定一个比内核能够支持的值还大的值，内核可以自动截断。
 当队列满时，客户的SYN到达之后，TCP应该忽略该分节，不能发送RST，使得客户TCP重发SYN。
 
+SYN泛滥攻击：
+以超高速率给主机发送SYN，用以装填一个或者多个TCP端口的未完成队列。而且该程序将每个SYN的原IP地址置为
+随机数，称为IP欺骗。导致合法用户的服务被拒绝。
+防范技术：
+1、通过防火墙，路由器等防护
+2、通过加固TCP/IP协议栈防范：缩短SYN_RECV状态时间，增大backlog数量。
+
+
 #include<sys/socket.h>
 int accept(int sockfd, struct sockaddr* cliaddr, socklen_t *addrlen);
 若成功则为非负描述符，若出错则为-1。
@@ -109,6 +208,82 @@ int accept(int sockfd, struct sockaddr* cliaddr, socklen_t *addrlen);
 
 一个服务器通常只创建一个监听套接字描述符，区分这两个描述符很重要。内核为每个由服务器进程接受的客户连
 接创建一个已连接套接字。
+
+父进程中调用fork之前打开的所有描述符在fork返回之后由子进程分享。网络服务器会利用这一特性：父进程在
+accept之后调用fork()函数。
+
+进程在调用exec之前打开的文件描述符通常跨exec继续保持打开。我们使用限定词“通常”，是因为本默认行为可以
+使用fcntl设置FD_CLOEXEC描述符标志禁止。
+
+进程终止处理的部分工作就是关闭所有由内核打开的文件描述符。
+
+#include<unistd.h>
+int close(int sockfd);
+成功则返回0，否则返回-1。服务器中关闭已经连接的套接字只是导致相应的描述符引用计数减1。
+被关闭的套接字不能再被进程调用。不能作为read或者write的第一个参数。
+TCP尝试将已排队等待发送到对端的任何数据，发送完毕后是正常的TCP链接。
+close调用并不引发TCP链接终止序列产生。如果我们确实想在某个TCP连接上发送一个FIN，那么可以改用shutdown
+函数以代替close。
+
+#include<sys/socket.h>
+int getsockname(int sockfd, struct sockaddr* localaddr, socklen_t * addrlen);
+int getpeername(int sockfd, struct sockaddr* peeraddr, socklen_t *addrlen);
+
+一般在TCP客户端，connect成功之后，需要getsockname返回内核分配的本地IP和端口。
+在TCP服务器端，bind时若没有指定IP地址，则可以在accept之后调用getsockname函数查看本地IP。
+在服务器端调用accept成功之后，某个进程调用exec执行进程，地址结构丢失，但是可以通过getpeername获得对端的
+地址结构。
+
+POSIX信号语义：
+1、一旦注册了信号处理函数，便一直存在。
+2、一个信号处理函数运行期间，正在被递交的信号是阻塞的。
+3、如果一个信号在阻塞期间产生了一次或者多次，那么该信号被解阻塞之后通常只递交一次。
+	即UNIX信号默认是不排队的。
+4、利用sigprocmask函数选择性的阻塞或者解阻塞一组信号是可能的。
+
+大多数网络支持函数都属于慢系统调用，甚至是永远阻塞的系统调用。
+当阻塞于某个慢系统调用的一个进程捕获某个信号且相应信号处理函数返回时，该系统调用可能返回一个EINTR错误。
+对于accept，read，write，select函数或者open函数，都可以进行重启被中断的系统调用。
+但是connect被中断是不能自动重启的。可以调用select等待链接完成。
+
+需要注意：
+1、当fork子进程时，必须捕获SIGHLD信号;
+2、当捕获信号时，必须处理被中断的系统调用；
+3、SIGCHLD必须正确编写，防止waitpid函数留下僵尸进程。
+
+当一个进程向某个已收到RST的套接字执行写操作时，内核向该进程发送一个SIGPIPE信号。
+
+处理SIGPIPE的建议方法取决于它发生时应用进程想做什么。如果没有特殊的事情要做，那么将信号处理办法直接
+设置为SIG_IGN。从信号处理函数返回后再处理来自write的EPIPE。
+
+如果不主动发送数据检测出服务器崩溃，那么可以采用SO_KEEPALIVE套接字选项。
+
+服务器主机崩溃：客户主动调用read会返回，ETIMEDOUT，EHOSTUNREACH，ENETUNREACH。
+服务器主机崩溃重启：客户read，返回ECONNRESET错误。
+服务器主机关机：init进程给所有进程发送SIGTERM信号，并且等待一段时间，对没有终止的进程全部发送SIGKILL
+信号。
+
+通过套接字传送二进制结构是不明智的。解决办法：
+1、所有数值通过文本串进行传递。
+2、显示定义所支持数据类型的二进制字符串。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
