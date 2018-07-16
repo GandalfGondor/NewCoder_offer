@@ -234,6 +234,9 @@ int getpeername(int sockfd, struct sockaddr* peeraddr, socklen_t *addrlen);
 在服务器端调用accept成功之后，某个进程调用exec执行进程，地址结构丢失，但是可以通过getpeername获得对端的
 地址结构。
 
+
+第五章 TCP客户端/服务器端程序
+
 POSIX信号语义：
 1、一旦注册了信号处理函数，便一直存在。
 2、一个信号处理函数运行期间，正在被递交的信号是阻塞的。
@@ -260,8 +263,8 @@ POSIX信号语义：
 
 服务器主机崩溃：客户主动调用read会返回，ETIMEDOUT，EHOSTUNREACH，ENETUNREACH。
 服务器主机崩溃重启：客户read，返回ECONNRESET错误。
-服务器主机关机：init进程给所有进程发送SIGTERM信号，并且等待一段时间，对没有终止的进程全部发送SIGKILL
-信号。
+服务器主机关机：服务端init进程给所有进程发送SIGTERM信号，并且等待一段时间，对没有终止的进程全部发送
+	SIGKILL信号。
 
 通过套接字传送二进制结构是不明智的。解决办法：
 1、所有数值通过文本串进行传递。
@@ -270,25 +273,279 @@ POSIX信号语义：
 
 
 
+第六章	I/O复用：select和poll函数
+Unix下可用的5种I/O模型区别：
+1、阻塞式I/O
+2、非阻塞式I/O
+3、I/O复用
+4、信号驱动式I/O：信号通知我们，可以继续进行工作。
+5、异步I/O：告知内核启动某个动作，并让内核在整个操作完成后通知我们。
+
+一个输入操作通常包括两个阶段：
+1、等待数据准备好。
+2、从内核向进程复制数据。
+
+阻塞IO，非阻塞IO，IO复用，信号驱动IO都是同步IO模型，只有异步IO没有阻塞IO操作。
+
+可以利用poll和select实现sleep函数，精度更为准确，为微秒。
+
+#include<sys/select.h>
+#include<sys/time.h>
+int select(int maxfdpl,fd_set *readset,fd_set *writeset, fd_set *exceptset,
+			const struct timeval *timeout)
+返回：若有就绪描述符则为其数目，若超时则为0，若出错则返回-1。
+
+void FD_ZERO(fd_set *fdset);
+void FD_SET(int fd, fd_set *fdset);
+void FD_CLR(int fd, fd_set *fdset);
+int FD_ISSET(int fd, fd_set *fdset);
+
+描述符集的初始化非常重要，因为作为自动变量分配的一个描述符集如果没有初始化，那么可能发生不可预期的
+后果。
+
+maxfd 参数指定待测试的描述符个数，其值为最大描述符加1。
+select指针指向的readset，writeset和exceptset所指向的描述符集，这三个参数都是值-结果参数。
+我们使用FD_ISSET来测试fd_set数据类型中的描述符。每次都要把所有的描述符集均置为1。
+
+描述符就绪条件：
+1）套接字准备好读
+1、接受缓冲区中的数据字节数大于等于套接字接受缓冲区低水位标记的当前大小。
+2、该连接的读半关闭。
+3、该套接字是一个监听套接字且已完成的连接数不为0。
+4、其上有一个套接字错误待处理。
+
+2）套接字准备好写
+1、该套接字发送缓冲区中的可用空间字节数大于等于套接字发送缓冲区低水位标记。
+2、该链接的写半关闭。
+3、使用非阻塞式connect的套接字已经建立连接，或者connect已经以失败告终。
+4、其上有一个套接字错误待处理。
+
+3）如果一个套接字存在带外数据或者仍处于带外标记，那么它有异常条件待处理。
+
+可以看出套接字发生错误的时候，它将由select标记为即可度又可写。
+
+select的最大描述符数，一般上限是1024等等。
+
+套接字可读情况：
+1、如果对端TCP发送数据，那么该套接字变为可读。
+2、如果对端TCP发送FIN，那么该套接字变得可读。
+3、如果对端TCP发送RST，那么该套接字变得可读。
+
+RTT round-trip time 往返时间。
+
+close两个限制条件：
+1、close把描述符-1，仅在该计数变为0时才关闭套接字。利用shutdown可以不管引用计数直接激发TCP发送FIN。
+2、close终止读和写两个方向的数据传送。
+
+#include<sys/socket.h>
+int shutdown(int sockfd, int howto);
+返回：若成功则返回0，若出错则为-1。
+
+howto参数：
+SHUT_RD：关闭连接的读这一半，套接字中不再有数据可接收，而且套接字接收缓冲区中的现有数据都被丢弃。
+SHUT_WR：关闭连接的写这一半，当前发送缓冲区的数据直接被发送，以及正常终止序列。
+SHUT_RDWR：全部半关闭。
+
+#include<sys/select.h>
+#include<signal.h>
+#include<time.h>
+
+int pselect(int maxfdpl, fd_set* readset, fd_set *writeset, fd_set *exceptset,
+		const struct timespec * timeout, const sigset_t *sigmask);
+若有就绪描述符则为其数目，若超时则为0，若出错则返回-1。
+
+与select区别：
+1、timespec的时间精度可以指定为纳秒。
+2、增加sigmask，一个指向信号掩码的指针。
+
+#include<poll.h>
+int poll(struct pollfd *fdarray, unsigned long nfds, int timeout)
+返回：若有就绪描述符则为其数目，若超时则为0，若出错则返回-1。
+
+第一个参数是指向一个结构数组的第一个元素的指针。每个数组元素都是一个pollfd结构，用于指定测试某个给定
+的fd条件。
+struct pollfd{
+	int		fd;
+	short	events;
+	short	revents;
+}
+每个描述符对应两个变量：一个为调用值，另一个为返回结果，避免使用值-结果参数。
+
+返回revent：
+1、所有正规TCP数据和所有UDP数据是普通数据。
+2、TCP读半部关闭时，譬如收到FIN，也被认为是普通数据，随后的读操作将返回0。
+3、非阻塞式connect的完成被认为是使相应套接字可写。
+
+结构数组中元素的个数是由nfds参数指定的。
+
+timeout的值表示指定数目的毫秒数。
+支持select的系统比支持poll系统要多，同时pselect能够处理信号阻塞并提供了更高时间分辨率的select增强版本。
+
+第七章 套接字选项
+
+getsockopt和setsockopt函数。
+
+#include<sys/socket.h>
+int getsockopt(int sockfd, int level , int optname, void *optval, socklen_t *optlen);
+int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+若成功则返回0，否则-1。
+
+optval对setesockopt来说是一个参数，对getsockopt来说是一个值-结果参数。
+*optval是一个整数，*optval中返回的值0表示相应选型禁止，不为0表示相应选项启用。
+
+套接字状态，下面的套接字选项是由TCP已连接套接字从监听套接字继承来的。
+SO_DEBUG,SO_DONTROUTE,SO_KEEPALIVE,SO_LINGER,SO_OOBINLINE,SO_RCVBUF,SO_RCVLOWAT,SO_SNDBUF,SO_SNDLOWAT,
+TCP_MAXSET和TCP_NODELAY。
+
+如果想在三路握手完成时确保这些套接字选项中的某一个是给已连接套接字设置的。
+
+SO_BRAODCAST套接字选项
+本选项开启或者禁止进程发送广播消息的能力。只有数据报套接字支持广播。
+SO_DEBUG
+本选项仅有TCP支持。当给一个TCP套接字开启本选项时。
+SO_DONTROUTE
+本选项规定外出的分组将绕过底层协议的正常路由机制。
+SO_ERROR
+当一个套接字上发生错误时，协议将so_error变量设为标准，待处理错误。
+SO_KEEPALIVE
+给一个TCP套接字设置保活选项后，如果2小时内在该套接字的任一一个方向上都没有数据交换，TCP就自动
+给对端发送一个保持存活探测的分节。发送探活分节之后：
+1、对端以期望的ACK响应。如果进程没有反应，仍然保活。
+2、对端以RST响应，致使返回ECONNRESET，套接字本身关闭。
+3、对端没有响应，发送端继续发送8个探活，相隔75秒，试图得到响应。最终若一直没有收到响应，就被设置为
+ETIMEOUT，套接字被关闭。如果收到ICMP错误，则返回错误。
+
+保持存活选项将检测出半开链接，并进行终止。
+
+SO_LINGER
+该选项指定close函数对面向链接的协议如何操作。默认操作是close立即返回，但是如果有数据残留在套接字
+缓冲区，系统将试着将这些数据发送给对端。
+#include<sys/socket.h>
+struct linger{
+int		l_onoff;
+int 	l_linger;
+};
+1、l_onoff为0，那么关闭本选项。
+2、如果l_onoff为非0值且l_linger为0，那么当close某个链接时TCP将终止该链接。同时丢弃缓冲区中的数据，发送
+RST给对端。没有FIN。
+3、如果l_onoff为非0值且l_linger为非0值，那么套接字关闭时内核将拖延一段时间。导致进程将被投入睡眠，直到
+数据发送完，或者延滞时到。
+
+SO_OOBINLINE
+当本选项开启时，带外数据将被留在正常的输入队列中。
+
+SO_RCVBUF和SO_SNDBUF
+每个套接字都有一个发送缓冲区和一个接收缓冲区。
+
+对于客户，SO_RCVBUF选项必须在connect之前调用；
+对于服务器，这意味着该选项必须在调用listen之前给监听套接字设置。
+TCP套接字缓冲区的大小至少应该是相应链接的MSS值得四倍。
+四倍是为了保证快速重传和快速恢复算法。
+
+当带宽-延迟积超过TCP的最大正常窗口大小，两段就得设置长肥管道选项。
+
+SO_RCVLOWAT和SO_SNDLOWA
+每个套接字还有一个接收低水位和一个发送低水位标记。
+
+SO_RCVTIMEO和SO_SNDTIMEO
+getsockopt和setsockopt函数参数指向timeval结构指针。
+默认情况下禁止超时。
+这两个选项设置后，若超时， 返回-1，并设置errno为EAGAIN或EWOULDBLOCK.
+其中connect超时的话，也是返回-1, 但errno设置为EINPROGRESS
+
+SO_REUSEADDR功能作用：
+1、允许启动一个监听服务器并捆绑其众所周知的端口
+2、允许在同一个端口启动同一服务器多个实例，只要本地IP不同就行。TCP不允许完全重复的捆绑。
+3、允许单个进程捆同一个端口到多个套接字上，
+4、允许完全重复捆绑。仅支持UDP。
+
+SO_REUSEPORT
+1、允许完全重复捆绑，不过只有在想要捆绑同一IP地址和端口的每个套接字都指定本选项。
+2、如果被捆绑的IP地址是一个多播地址。那么SO_REUSEADDR和SO_REUSEPORT等效。
+SO_REUSEADDR需要对设置的套接字进行setsockopt，SO_REUSEPORT需要每一个都设置。
+
+SO_TYPE套接字选项
+返回诸如SOCK_STREAM或者SOCK_DGRAM
+
+SO_USELOOPBACK
+仅用于AF_ROUTE套接字。当本选项启动时，相应的套接字将接收在其上发送的任何数据报的一个副本。
+禁用环回副本的方法是调用shutdown，并且设置第二个参数为SHUT_RD。
+
+将level设置为IPPROTO_IP，则可以设置对应的套接字选项、
+IP_TTL可以设置单播分组上的默认TTL，一般默认都是64。
+
+将level设置为IPPROTO_ICMPV6，可以设置icmpv6选项。
+
+将level设置为IPPROTO_TCP，可以设置对应选项。
+TCP_MAXSEG允许我们获取或是设置TCP链接的MSS。
+
+TCP_NODELAY
+开启本选项将禁止TCP的Nagle算法。Nagle算法常常与ACK延迟算法联合使用。
+Nagle会等待小分组确认，才发送之后的字符。ACK延迟会等待数据进行ACK捎带发送。
+所以紧着TCP_NODELAY会节省很多时间。
+
+fcntl函数提供如下网络编程相关特性：
+1、非阻塞式I/O。通过使用F_SETFL命令设置O_NONBLOCK文件状态标志。
+2、信号驱动式I/O。通过F_SETFL命令设置O_ASYNC文件状态标志。
+3、F_SETOWN命令允许我们指定用于接收SIGO和SIGUR信号的套接字属主(进程ID或者进程组ID)。
+
+#include<fcntl.h>
+int fcntl(int fd, int cmd,...)
+若成功则取决于cmd，出错返回-1。
+
+最常用的选项一般是SO_KEEPALIVE,SO_RCVBUF,SO_SNDBUF和SO_REUSEADDR。
+SO_KEEPALIVE套接字选项以自动终止一个半开连接。优点在于他由TCP层进行处理，不需要有一个应用级的休止状态
+定时器；缺点是无法区分客户主机崩溃和客户主机连通性的暂时丢失。
+
+SO_LINGER套接字选项使得我们可以更好的控制CLOSE函数返回。
 
 
 
+第八章 基本的UDP套接字编程
+UDP是无连接不可靠的数据报协议。
+UDP可以用来编写一些常见的应用程序：DNS(域名系统)，NFS(网络文件系统)，SNMP(简单网络管理协议)
 
 
+#include<sys/socket.h>
 
+ssize_t recvfrom(int sockfd, void*buff, size_t nbytes, int flags, 
+				struct sockaddr *from, socklen_t *addrlen);
+ssize_t sendto(int sockfd, const void *buff, size_t nbytes, int flags, const struct sockaddr *to,
+				socklen_t *addrlen);
+若成功则返回读或者写的字节数，若出错则为-1。
 
+如果recvfrom的from参数是一个空指针，那么相应的长度参数也必须是一个空指针，表示我们并不关心数据发送者的
+协议地址。
 
+TCP服务器基本是并发服务器
+UDP服务器基本是迭代服务器
 
+recvfrom可以将socket接收到的地址保存在from上，所以服务器端直接调用recvfrom函数即可。
+对于一个UDP套接字，如果其进程首次调用sendto时没有绑定一个本地端口，那么内核就在此时为他选择一个临时
+	端口。
 
+UDP输出操作成功返回仅仅表示在接口输出队列中具有存放所形成的IP数据报的空间。
+客户可以调用bind指定他们。在客户的这两个值由内核选择的情形下，临时端口是在第一次调用sendto时一次性选定，
+不能改变。但是客户的IP地址却可以随客户发送的每个UDP数据报而变动。
 
+UDP套接字调用connect，没有三路握手过程。内核只是检查是否存在立即可知的错误。记录对端的IP地址和端口号，
+然后立即返回到调用进程。
 
+UDP根据是否进行connect可以分成
+1、未连接的UDP套接字，新创建UDP套接字默认如此；
+2、已连接的UDP套接字，对UDP套接字调用connect结果；
 
+已连接的UDP套接字：
+1、不能使用sendto，可以用write或者send，或者使用sendto时候将第五和第六参数置空。
+2、不必使用recvfrom，可以用read，recv或者recvmsg。
+3、已连接UDP套接字引发的异步错误会返回给他们所在的进程。
 
+对一个UDP套接字connect多次可以指定新的IP地址和端口号。不同于TCP套接字，connect只能调用一次。
 
+当应用进程知道自己要给同一目的地址发送多个数据报时，显示连接套接字效率更高。
+UDP发送端淹没接收端是轻而易举的事情。
 
-
-
-
+UDP套接字可以捆绑与TCP套接字相同的端口，因为TCP端口和UDP端口是独立的。
 
 
 

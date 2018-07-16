@@ -235,6 +235,8 @@ C++规定独立对象必须有非零大小。
 private继承意味着“根据某物实现出”，他通常比复合的级别低。
 和复合不同，private可以造成empty base最优化。可以优化对象尺寸。
 
+1、尽量不要使用virtual bases。
+2、如果必须使用virtual base classes，尽可能在其中不要放置数据。
 
 
 

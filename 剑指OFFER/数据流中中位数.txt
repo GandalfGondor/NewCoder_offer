@@ -1,0 +1,44 @@
+class Solution {
+public:
+    std::vector<int> max;
+std::vector<int> min;
+void Insert(int num)
+{
+	int a = max.size()+min.size();
+	if(a%2)
+	{
+		min.push_back(num);
+		push_heap(min.begin(),min.end(),std::greater<int>());
+		num = min[0];		
+		pop_heap(min.begin(),min.end(),std::greater<int>());
+		min.pop_back();
+		max.push_back(num);
+		push_heap(max.begin(),max.end(),std::less<int>());
+	}
+	else
+	{
+		max.push_back(num);
+		push_heap(max.begin(),max.end(),std::less<int>());
+		num = max[0];
+		pop_heap(max.begin(),max.end(),std::less<int>());
+		max.pop_back();
+		min.push_back(num);		
+		push_heap(min.begin(),min.end(),std::greater<int>());
+	}
+	return ;
+
+}
+
+double GetMedian()
+{
+	int a = max.size()+min.size();
+	if(a%2)
+		return min[0];
+	else
+	{ 
+		return static_cast<double>(max[0]+min[0])/2;		
+	}
+
+}
+
+};
