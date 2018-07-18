@@ -548,7 +548,48 @@ UDP发送端淹没接收端是轻而易举的事情。
 UDP套接字可以捆绑与TCP套接字相同的端口，因为TCP端口和UDP端口是独立的。
 
 
+第十四章 高级I/O函数
+readv和writev允许单个系统调用读入到或者写出自一个或者多个缓冲区。这些操作称为分散读和集中写。
+#include<sys/uio.h>
+ssize_t readv(int filedes, const struct iovec* iov, int iovcnt);
+ssize_t writev(int filedes, const struct iovec *iov, int iovcnt);
+若成功则为读入或写出的字节数，若出错则为-1。
+
+struct iovec{
+void 		*iov_base;
+size_t 		iov_len;
+}
 
 
+第十六章 非阻塞I/O
 
+套接字的默认状态是阻塞的。
+
+1、对于非阻塞套接字，如果输入操作不能被满足，相应的调用将立即返回一个EWOULDBLOCK错误
+2、对于非阻塞套接字，如果其发送缓冲区根本没有空间，输出函数调用将立即返回一个EWOULDBLOCK错误。
+3、对于非阻塞套接字，调用accept函数，并且没有新的连接到达，accept调用将会立即返回一个EWOULDBLOCK错误。
+4、对于非阻塞套接字，调用connect，链接不能立即建立，那么链接的建立能照样发起，不过会立即返回一个
+	EINPROGRESS错误。但是服务器和客户端在一个主机情况下，我们也要准备connect成功返回的情况。
+	
+非阻塞的TCP套接字上调用connect时，connect立即返回一个EINPROGRESS错误，不过已经发起TCP三路握手继续进行，
+使用select检测这个链接成功或者失败的已建立条件。
+1、一个connect至少花费一个RTTI时间，局域网可能是几个毫秒，广域网可能是几秒。
+2、我们可以同时建立多个链接，适用于Web浏览器。
+3、使用select等待链接的建立，我们可以指定时间间隔，使得缩短connect的超时。
+
+注意事项：
+1、必须处理connect链接，立即建立的情况。
+2、当链接建立成功时，描述符变为可写。当链接遇到错误时，描述符变得可读以及可写。
+
+但是一般通过调用getsockopt来检查套接字上是否存在待处理错误来处理。
+1、调用getsockopt，检测返回值，并且查看值-结果参数。
+2、调用getpeername代替getsockopt。如果返回ENOTCONN，则失败。
+3、调用长度为0的read，如果read失败，则connect失败。
+4、再一次调用connect，必须失败，返回EISCONN，那么套接字已经连接，表示成功。
+
+当有一个已完成的链接准备好被accept时，select将作为可读描述符返回该链接的监听套接字。
+
+针对服务器listen之后和accept之前，若是套接字链接中止，返回RST，服务器会阻塞在accept上，所以：
+1、使用select获悉某个监听套接字上何时有准备好accept时，总需要把这个套接字先设置成非阻塞。
+2、后续accept忽略 EWOULDBLOCK，ECONNABORTED，EPROTO。
 

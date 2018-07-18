@@ -1,49 +1,41 @@
 /*地上有一个m行和n列的方格。一个机器人从坐标0,0的格子开始移动，每一次只能向左，右，上，下四个方向移动一格，但是不能进入行坐标和列坐标的数位之和大于k的格子。 例如，当k为18时，机器人能够进入方格（35,37），因为3+5+3+7 = 18。但是，它不能进入方格（35,38），因为3+5+3+8 = 19。请问该机器人能够达到多少个格子？*/
 class Solution {
 public:
-
- int sum = 0;
-int count(int i, int j)
+void core(int threshold, int rows, int cols, int row, int col, vector<bool>& vec,int & res)
 {
-	int temp = 0;
-	do
+	if(row<0||row > rows-1 || col<0 || col>cols-1 || vec[row*cols+col] == false)
+		return ;
+	vec[row*cols+col] = false;
+	int check = 0,row1 = row ,col1 = col;
+	while(row1)
 	{
-		temp = temp+i % 10;
-	} while (i = i / 10);
-
-	do
-	{
-		temp = temp+  j % 10;
-	} while (j = j / 10);
-	return temp;
-}
-void movcore(vector<int> *v, int threshold, int rows, int cols, int i, int j)
-{
-	if (i<0 || j<0 || i >= rows || j >= cols)
-	{
-		return;
+		check  += row1%10;
+		row1=row1/10;
 	}
-	if ((*v)[i*cols + j] == 1)
-		return;
-	if (count(i, j)<=threshold)
+	while(col1)
 	{
-		(*v)[i*cols + j] = 1;
-		sum++;
-		movcore(v, threshold, rows, cols, i + 1, j);
-		movcore(v, threshold, rows, cols, i - 1, j);
-		movcore(v, threshold, rows, cols, i, j + 1);
-		movcore(v, threshold, rows, cols, i, j - 1);
+		check  += col1%10;
+		col1 = col1/10;
 	}
+	if(check>threshold)
+		return ;
+	res++;
 	
+	core(threshold, rows, cols, row+1,col,vec,res);
+	core(threshold, rows, cols, row-1,col,vec,res);
+	core(threshold, rows, cols, row,col+1,vec,res);
+	core(threshold, rows, cols, row,col+1,vec,res);
+    return ;
 }
 
 int movingCount(int threshold, int rows, int cols)
 {
-	int i = 0;
-	int j = 0;
-	vector<int> v(rows*cols, 0);
-	movcore(&v, threshold, rows, cols, 0, 0);
-	return sum;
+	int res = 0;
+	int i , j;
+	vector<bool> vec(rows*cols,true);
+	core(threshold,rows,cols,0,0,vec,res);
+	return res;
 }
+};
 
 };
