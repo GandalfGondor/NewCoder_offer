@@ -1,0 +1,75 @@
+#include<stdio.h>
+#include<string>
+#include<vector>
+
+using namespace std;
+int cnt1=0;
+void mark(vector<vector<bool>> & vec,int i ,int j)
+{
+	int t;
+	for(t = 0;t<vec.size();++t)
+	{
+		vec[i][t] = false;
+		vec[t][j] = false;
+	}
+	for(t = 0;i+t<vec.size() && j+t<vec.size();++t)
+	{
+		vec[t+i][j+t] = false;
+	
+	}
+	for(t = 0;i+t<vec.size() && j-t>=0;++t)
+	{
+		vec[i+t][j-t] = false;
+	
+	}
+}
+void core(int n,vector<vector<bool>> vec)
+{
+	int i , j ;
+	if(n == vec.size())
+	{
+		++cnt1;
+		return;
+	}
+	vector<vector<bool>> vec2 = vec;
+	for( i = 0;i<vec.size();++i)
+	{
+		vec = vec2;
+		if(!vec[n][i])
+			continue;
+		mark(vec,n,i);
+		core(n+1,vec);
+	}
+	return ;
+
+}
+
+void eightqueen(int n)
+{
+	vector<vector<bool>> vec (n,vector<bool>(n,true)),vec2;
+	vec2 = vec;
+	int i;
+	for(i = 0; i<n; ++i)
+	{
+		vec = vec2;
+		mark(vec,0 ,i);
+		core(1,vec);
+	}
+}
+
+
+int main()
+{
+
+	eightqueen(8);
+	printf("res = %d \n",cnt1);
+	return 0;
+}
+
+
+
+
+
+
+
+
