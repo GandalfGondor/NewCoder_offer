@@ -593,3 +593,81 @@ size_t 		iov_len;
 1、使用select获悉某个监听套接字上何时有准备好accept时，总需要把这个套接字先设置成非阻塞。
 2、后续accept忽略 EWOULDBLOCK，ECONNABORTED，EPROTO。
 
+第二十六章 线程
+当一个进程需要另外一个实体来完成某件事时，他就fork一个子进程并让子进程去执行处理。但是fork调用存在问题：
+1、fork昂贵，fork要把父进程的内存映像复制到子进程，并且在子进程中复制所有描述符。当今的实现使用称为
+	写时复制。
+2、fork返回之后父子进程之间信息的传递需要进程间通信机制。
+	
+线程共享进程的：
+1、全局变量
+2、进程指令
+3、打开文件描述符
+4、信号处理函数和信号处置
+5、工作目录
+6、用户ID和组ID。
+
+线程独有：
+1、线程ID
+2、寄存器，计数器，栈指针
+3、栈
+4、errno；
+5、信号掩码
+6、优先级
+	
+#include<pthread.h>
+int pthread_create(pthread_t *tid, const pthread_attr_t *attr, void *(*func)(void *),void *arg);
+若成功则为0，若出错则为正的Exxx值。
+
+pthread_create因在线程数目上超过某个系统限制而不能创建新线程，函数返回值是EAGAIN。
+	
+#include<pthread.h>
+int pthread_join(pothread_t *tid, void **status);
+成功则为0，若出错则为正的Exxx值。
+必须指定等待线程tid。
+
+#include<pthread.h>
+pthread_t pthread_self(void);
+返回调用函数的线程ID。
+
+#include<pthread.h>
+int pthread_detach(pthread tid);
+脱离的线程终止时，所有相关资源全部释放，不能等待终止。
+
+#include<pthread>
+void pthread_exit(void *status);
+如果线程不曾脱离，线程ID和退出状态，一直留存到调用进程内某个线程对他调用pthread_join
+
+同一进程内的所有线程共享全部描述符，主线程调用close，他就会终止相应链接。创建新线程不影响已经打开的
+文件描述符，不同于fork。
+
+线程安全函数版本后面一般加上_r。
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

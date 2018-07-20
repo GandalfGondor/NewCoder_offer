@@ -1,0 +1,39 @@
+给定两个非空链表来表示两个非负整数。位数按照逆序方式存储，它们的每个节点只存储单个数字。将两数相加返回一个新的链表。
+你可以假设除了数字 0 之外，这两个数字都不会以零开头。
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+	int flag = 0;
+	int temp = 0;
+	ListNode* head = new ListNode(0);
+	ListNode* pre = head;
+	for(;l1!=NULL || l2!= NULL;l1 = l1->next,l2 = l2->next)
+	{
+		temp = 0;
+		if(l1!=NULL)
+			temp += l1->val;
+		if(l2!=NULL)
+			temp += l2->val;
+		temp = temp+flag;
+		if(temp>=10)
+		{
+			temp = temp-10;
+			flag = 1;
+		}
+		else flag = 0;
+		head->next = new ListNode(temp);
+		head = head->next;
+	}
+	if(flag == 1)
+	head->next = new ListNode(flag);
+	return pre->next;
+}
+};
