@@ -509,9 +509,9 @@ UDP可以用来编写一些常见的应用程序：DNS(域名系统)，NFS(网�
 #include<sys/socket.h>
 
 ssize_t recvfrom(int sockfd, void*buff, size_t nbytes, int flags, 
-				struct sockaddr *from, socklen_t *addrlen);
-ssize_t sendto(int sockfd, const void *buff, size_t nbytes, int flags, const struct sockaddr *to,
-				socklen_t *addrlen);
+					struct sockaddr *from, socklen_t *addrlen);
+ssize_t sendto(int sockfd, const void *buff, size_t nbytes, int flags, 
+					const struct sockaddr *to,socklen_t *addrlen);
 若成功则返回读或者写的字节数，若出错则为-1。
 
 如果recvfrom的from参数是一个空指针，那么相应的长度参数也必须是一个空指针，表示我们并不关心数据发送者的

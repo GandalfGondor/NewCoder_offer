@@ -1,0 +1,31 @@
+给定两个大小为 m 和 n 的有序数组 nums1 和 nums2 。
+
+请找出这两个有序数组的中位数。要求算法的时间复杂度为 O(log (m+n)) 。
+class Solution {
+public:
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
+	int sum = nums1.size() + nums2.size();
+	bool even = sum%2;
+	vector<int> res;
+	int i = 0 ;
+	int j = 0;double resu = 0;
+	while(res.size() < (sum/2+1) && i<nums1.size() && j<nums2.size())
+	{
+		for(;res.size() < (sum/2+1)&& i<nums1.size() && nums1[i]<=nums2[j];++i)
+			res.push_back(nums1[i]);
+		for(;res.size() <(sum/2+1)&& j<nums2.size() && nums1[i]>nums2[j];++j)
+			res.push_back(nums2[j]);
+	}
+	if(i<nums1.size())
+		for(;res.size() < (sum/2+1)&& i<nums1.size();++i)
+			res.push_back(nums1[i]);
+	else if(j<nums2.size())
+		for(;res.size() <(sum/2+1)&& j<nums2.size();++j)
+			res.push_back(nums2[j]);
+	if(even)
+		resu =  (res[sum/2]);
+	else 
+		resu =  static_cast<double>(res[sum/2-1]+res[sum/2])/static_cast<double>(2);
+    return resu;
+}
+};
