@@ -238,8 +238,8 @@ private继承意味着“根据某物实现出”，他通常比复合的级别�
 1、尽量不要使用virtual bases。
 2、如果必须使用virtual base classes，尽可能在其中不要放置数据。
 
-
-
+对classes而言，接口是显示的，以函数的签名为中心。多态则是通过virtual函数发生于运行期。
+对template参数而言，接口是隐式的，多态则是通过template具现化和函数重载解析发生于编译期间。
 
 
 
