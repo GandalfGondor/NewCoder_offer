@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <vector>
+#include <string>
+#include <iostream>
+void Errorp(std::string ErrorStr)
+{
+	std::cout<<ErrorStr<<std::endl;
+	exit(1);
+}
+void CheckMaze(int p11,int p12,int p21,int p22)
+{
+	if(p11 == p21)
+	{
+		if(p12-p22==1 ||p22-p12 ==1)
+			return ;
+	}
+	if(p22 == p12)
+	{
+		if(p11-p21==1 ||p21-p11 ==1)
+			return ;
+	}
+	Errorp("Maze format error.");
+}
+void Printf(std::vector<std::vector<int>> NetGrid)
+{
+	for(int i = 0; i<NetGrid.size();++i)
+	{
+		for(int j = 0 ;j<NetGrid.size(); ++j)
+		{
+			std::string s1 = "[W]";
+			std::string s2 = "[R]";
+			printf("%s  ",NetGrid[i][j]?s2.c_str():s1.c_str());
+		}
+		printf("\n");
+	}
+}
+
+int CheckSubStr(std::string str,int s,int len,bool IsCol,int row,int colmn)
+{
+	for(int i=0;i<len;++i)
+	{
+		if(str[s+i]>'9' || str[s+i] <'0')
+			Errorp("IN CHECKSUBSTR FUNC : Invalid number format");
+	}
+	
+	int num = atoi(str.substr(s,len).c_str());
+	if(IsCol)
+	{	if(num>=colmn)
+			Errorp("Number Out of range.");
+	}
+	else 
+	{
+		if(num>=row)
+			Errorp("Number Out of range.");
+	}
+}
+void GetNum(std::string link,int row,int colmn)
+{
+	int DotPos1,DotPos2;
+	int p11,p12,p21,p22;
+	int SpacePos=0;
+	int SemPos=0;	
+	SpacePos = link.find(' ');
+	SemPos = link.find(';');
+	bool FlagEnd = true;
+	if(SpacePos == std::string::npos && SemPos == std::string::npos)
+		return;
+	if(SemPos == std::string::npos)
+	{	
+		SemPos = link.size();
+		FlagEnd = false;
+	}
+	std::string s1(link,0,SpacePos);
+	std::string s2(link,SpacePos+1,SemPos-SpacePos);
+	DotPos1 = s1.find(',');	DotPos2 = s2.find(',');	
+	if(!(SemPos>DotPos2 && SpacePos>DotPos1))
+		Errorp("IN GETNUM FUNC : Incorrect command format");
+	p11 = CheckSubStr(s1,0,DotPos1,false,row,colmn);
+	p12 = CheckSubStr(s1,DotPos1+1,SpacePos-DotPos1-1,true,row,colmn);
+	p21 = CheckSubStr(s2,0,DotPos2,false,row,colmn);
+	p22 = CheckSubStr(s2,DotPos2+1,SemPos-DotPos2-SpacePos-2,true,row,colmn);
+	CheckMaze(p11, p12, p21, p22);
+	printf("input: %d,%d %d,%d\n",p11,p12,p21,p22);
+
+	if(SemPos!=0 && FlagEnd)
+		GetNum(link.substr(SemPos+1),row,colmn);
+}
+int main()
+{
+	int row,colmn,i,j;
+	//std::cin>>row>>colmn;getchar();
+	row = 3;colmn =3;
+	
+	std::vector<std::vector<int>> NetGrid(2*row+1,std::vector<int>(2*colmn+1,0));
+	for(i=1 ; i< 2*row+1;i+=2)
+	{
+		for(j = 1; j<2*colmn+1 ; j+=2)
+		{
+			NetGrid[i][j] = 1;
+		}
+	}	
+	std::string link; 
+	//getline(std::cin,link); 
+	link = "0,1 1,1;0,0 1,0;0,1 2,1;1,2 0,2";
+	GetNum(link,row,colmn);
+	Printf(NetGrid);
+	return 0;
+}

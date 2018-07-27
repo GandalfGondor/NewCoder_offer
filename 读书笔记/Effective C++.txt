@@ -241,6 +241,47 @@ private继承意味着“根据某物实现出”，他通常比复合的级别�
 对classes而言，接口是显示的，以函数的签名为中心。多态则是通过virtual函数发生于运行期。
 对template参数而言，接口是隐式的，多态则是通过template具现化和函数重载解析发生于编译期间。
 
+template出现的名称如果相依于某个template参数，称之为从属名称。如果该名称在class内呈嵌套状，我们称它为
+嵌套从属名称。我们必须告诉C++，声明类型，需要在紧临它之前放置关键字typename。
+typename不可以出现在base classes list内的嵌套从属类型名称之前，也不可以出现在成员初值列中。
+
+声明template参数时，前缀关键字class 和typename可以互换。
+请使用typename标识标识嵌套类型，但是基类列表和成员初值列除外。
+
+模板类编程中，C++拒绝调用基类成员函数。因为他知道base class templates有可能被特化，而那个特化版本可能
+不提供一般性的template接口。所以往往拒绝在templatized base classes寻找继承而来的名称。
+可以通过  this->   指向一个成员名称，或者藉由一个明白写出的base class资格修饰符。
+
+成员函数模板的效用，在构造函数时防止无限量具现化函数。还有一个功能就是支持赋值操作。
+想要控制copy构造函数的方方面面，必须同时声明泛化copy构造函数和“正常的”copy构造函数。
+
+使用member function templates生成“可接受所有兼容类型”的函数。
+声明member templates 用于“泛化copy构造”或者“泛化assignment操作”，还是需要声明正常的copy构造函数和
+copyassignment 操作符。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
