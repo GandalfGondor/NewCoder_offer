@@ -1,0 +1,23 @@
+<html>
+<head>
+	<title>This is title</title></head><body><a href="http://baidu.com">BaiDu</a>      
+	<button class="btn">click</button>
+	<script>
+		var btn = document.getElementById('but')[0];
+		btn.click = function () {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'http://127.0.0.1:2000');
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) {
+				    alert(xhr.responseText);
+				}
+			}
+			xhr.send();
+		}
+	</script>
+	<br><a href="ftp://192.168.157.132/">MY_FTP_Serv</a> <nav> 
+	<br><a href="/css/">CSS</a><br><a href="/login">LOGIN</a> 
+	<br><a href="/parper">MY_Parper</a> <br><a href="/jquery/">jQuery</a></nav>
+	<h1>Hello</h1>
+</body>
+</html>

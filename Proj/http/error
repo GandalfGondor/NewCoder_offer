@@ -1,0 +1,8 @@
+g++ -c -g -std=c++11 ../cpp11netbase/TcpConnection.c -o ../cpp11netbase/TcpConnection.o
+g++ -c -g -std=c++11 HttpServer.c -o HttpServer.o
+g++ -c -g -std=c++11 main.c -o main.o
+main.c: In function ‘void onRequest(const HttpRequest&, HttpResponse*)’:
+main.c:57:17: warning: unknown escape sequence: '\l'
+   string body = "<body><form name=\"form_1\" action=\"/cgi-bin/post.cgi\" method=\"post\"><table align=\"center\"><tr><td align=\"center\" colspan=\"2\"></td></tr><tr><td align=\"right\">username</td><td><input type=\"text\" name=\"Username\"></td> </tr><tr><td align=\"right\">password</td><td><input type=\"password\" name=\"Password\"></td></tr><tr><td><input type=\"submit\" value=\login></td><td><input type=\"reset\" value=\"cancel\"></td></tr></table></form></body>";
+                 ^
+g++ -o serv   ../cpp11netbase/Socket.o  ../cpp11netbase/ThreadPool.o  ../cpp11netbase/TimerQueue.o  ../cpp11netbase/Poller.o  ../cpp11netbase/Channel.o  ../cpp11netbase/SocketOps.o  ../cpp11netbase/DefaultPoller.o  ../cpp11netbase/InetAddress.o  ../cpp11netbase/Connector.o  ../cpp11netbase/CountDownLatch.o  ../cpp11netbase/EPollPoller.o  ../cpp11netbase/Thread.o  ../cpp11netbase/Acceptor.o  ../cpp11netbase/TcpConnection.o  ../cpp11netbase/TcpClient.o  ../cpp11netbase/PollPoller.o  ../cpp11netbase/EventLoopThreadPool.o  ../cpp11netbase/EventLoop.o  ../cpp11netbase/Condition.o  ../cpp11netbase/Buffer.o  ../cpp11netbase/Timestamp.o  ../cpp11netbase/TcpServer.o  ../cpp11netbase/EventLoopThread.o  ../cpp11netbase/Timer.o  ./HttpResponse.o  ./HttpContext.o  ./HttpServer.o  ./main.o -g -std=c++11 -lpthread
