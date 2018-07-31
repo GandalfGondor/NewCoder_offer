@@ -9,3 +9,36 @@ Prim算法的核心内容就是维护两个队列，vector。
 内部循环二： 更新内部两个队列，根据找到最小的新点，更新生成树中能到达点的距离，更新到达各个点的坐标。
 
 
+void prime(std::vector<std::vector<int>> graph)
+{
+	int max = 0x0000ffff;
+	std::vector<int> point(graph.size(),0);
+	std::vector<int> length(graph.size(),max);
+	int i ,j,k;
+	length = graph[0];
+	int min=0;
+	for(i=1; i < graph.size();++i)
+	{
+		min = max;
+
+		for(j=1; j<point.size();++j)
+		{
+			if(length[j]!=0 && min>length[j])
+			{
+				min = length[j];
+				k = j;
+			}
+		}
+		printf("(%d,%d)  ",k,point[k]);
+		length[k] = 0;
+		for(j=1; j<point.size();++j)
+		{
+			if(length[j]!=0 && length[j]>graph[k][j])
+			{
+				length[j] = graph[k][j];
+				point[j] = k;
+			}
+
+		}
+	}
+}

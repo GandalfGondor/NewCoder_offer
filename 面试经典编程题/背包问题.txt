@@ -1,3 +1,28 @@
 针对背包问题，解决方法就是一个内循环和一个外循环：
 外循环是遍历物品，内循环是遍历背包容量。
-每次更新当容量加一时，是应该等于容量不变时的价值，还是加上当前商品的价值。
+每次更新当容量加一时，判断是应该等于容量不变时的价值，还是加上当前商品的价值。
+
+void backpack(std::vector<int> weight,std::vector<int>val,int con)
+{
+	std::vector<std::vector<int>> rec(weight.size()+1,std::vector<int>(con+1,0));
+	int i = 0;
+	int j = 0;	
+	for(i=0; i<weight.size(); ++i)
+	{
+		for(j=1; j<=con ; ++j)
+		{
+			if(j<weight[i])
+			{
+				rec[i+1][j] = rec[i][j];
+			}
+			else 
+			{
+				if(rec[i][j-weight[i]]+val[i] > rec[i][j])
+					rec[i+1][j] = rec[i][j-weight[i]]+val[i];
+				else rec[i+1][j] = rec[i][j];
+			}
+
+		}
+	
+	}
+}
