@@ -1,0 +1,37 @@
+class Solution {
+public:
+vector<string> letterCombinations(string digits) {
+
+	vector<vector<string>> Key{ { "a", "b", "c" },{ "d","e","f" },{ "g","h","i" },
+	{ "j","k","l" },{ "m","n","o" },{ "p","q","r","s" },{ "t","u","v" },{ "w","x","y","z" } };
+	int i = 0;
+	vector<int> dig;
+	for (i = 0; i < digits.size(); ++i)
+	{
+		dig.push_back(digits[i] - '2');
+	}
+	vector<string> res;
+	if (digits.empty())
+		return res;
+	for (i=0; i<Key[dig[0]].size(); ++i)
+	{
+		res.push_back(Key[dig[0]][i]);
+	}
+	core(dig, Key, res,1);
+	return res;
+}
+void core(vector<int> dig, vector<vector<string>> Key, vector<string>& res,int cnt)
+{
+	if (cnt == dig.size())
+		return;
+	int i = 0;
+	vector<string> temp;
+	for (i = 0; i < res.size(); ++i)
+	{
+		for(int j = 0;j<Key[dig[cnt]].size();++j)
+			temp.push_back(res[i]+Key[dig[cnt]][j]);
+	}
+	res = temp;
+	return core(dig, Key, res, ++cnt);
+}
+};

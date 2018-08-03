@@ -1,0 +1,38 @@
+class Solution {
+public:
+std::vector<std::vector<int>> fourSum(std::vector<int>& nums, int target) {
+	int one=0, two=1, three=2, four=3;
+	std::vector<std::vector<int>> vec;
+	sort(nums.begin(), nums.end());
+	if (nums.size() < 4)
+		return vec;
+	for (; one < nums.size() - 3; ++one)
+	{
+		while (one>0 && nums[one] == nums[one - 1])
+			++one;
+		for (two = one + 1; two < nums.size() - 2; ++two)
+		{
+			while (two > one + 1 && nums[two] == nums[two - 1])
+				++two;
+			three = two + 1;
+			four = nums.size() - 1;
+			while (three < four)
+			{
+				int sum = nums[one] + nums[two] + nums[three] + nums[four];
+				if (sum == target) {
+					vec.push_back(std::vector<int>{nums[one], nums[two], nums[three++], nums[four--]});
+					while (nums[three] == nums[three - 1])
+						++three;
+					while (nums[four] == nums[four + 1])
+						--four;
+				}
+				else if (sum < target)
+					++three;
+				else --four;
+			}
+
+		}
+	}
+	return vec;
+}
+};
