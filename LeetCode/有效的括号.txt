@@ -1,0 +1,20 @@
+bool isValid(std::string s) 
+{
+	std::stack<char> stac;
+	int i = 0;
+	for(;i<s.size();++i)
+	{
+		if(s[i]=='(' || s[i] == '{' || s[i] == '[')	
+			stac.push(s[i]);
+        	else
+		{
+			if(stac.empty()) return false;
+			if(s[i]==')'&& stac.top()!='(') return false;
+			if(s[i]==']'&& stac.top()!='[') return false;
+			if(s[i]=='}'&& stac.top()!='{') return false;
+            stac.pop();
+		}
+	}
+
+    return stac.empty();
+}
