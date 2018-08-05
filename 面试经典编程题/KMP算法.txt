@@ -1,0 +1,47 @@
+#include<stdio.h>
+#include <vector>
+
+int get_next(std::string s,std::vector<int>& vec) 
+{
+	int i = 0;
+	int j = -1;
+	vec[0] = -1;
+	while (i < s.size()-1)
+	{
+		if (j == -1 || s[i] == s[j])
+		{
+			++i;
+			++j;
+			vec[i] = j;
+		}
+		else j = vec[j];
+	}
+	return 0;
+}
+int kmp(std::string str, std::string substr)
+{
+	std::vector<int> next(substr.size(),0);
+	get_next(substr,next);
+	int i = 0;
+	int j = 0;
+	while (i < int(str.size()) && j < int(substr.size()))
+	{
+		if (j == -1 || str[i] == substr[j])
+		{
+			++j; ++i;
+		}
+		else j = next[j];
+	}
+	if (j >= substr.size())
+		return i - substr.size();
+	else return 0;
+}
+
+int main()
+{
+	std::string s("abcdabcaaxxaaxxadefgx");
+	std::string substr("xaax");
+	int res = kmp(s,substr);
+	printf("%d ", res);
+	return 1;
+}
