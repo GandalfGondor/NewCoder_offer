@@ -1,0 +1,38 @@
+#include<stdio.h>
+#include <vector>
+using namespace std;
+vector<string> res;
+void core(int i, int j, string s)
+{
+	if (i == 0 && j == 0)
+	{
+		res.push_back(s);
+		return;
+	}
+	if (i == 0)
+	{
+		for (; j; --j)
+			s += ")";
+		res.push_back(s);
+		return;
+	}
+	
+	core(i - 1, j, s + "(");
+	if (j > i)
+		core(i, j - 1, s + ")");
+	return;
+}
+vector<string> generateParenthesis(int n) {
+	string s;
+	if (n > 0)
+		core(n,n,s);
+	return res;
+}
+int main()
+{
+	int n = 3;
+	vector<string> res = generateParenthesis(n);
+	for (auto i : res)
+		printf("%s\n",i.c_str());
+	return 1;
+}
