@@ -1,0 +1,14 @@
+int removeElement(std::vector<int>& nums, int val) {
+	int pre = 0;
+	int now = 0;
+	for(;now<nums.size();++now)
+	{
+		for(;now<nums.size() && nums[now] == val;++now);
+		if(now<nums.size())
+		{
+			nums[pre] = nums[now];
+			++pre;		
+		}
+	}
+	return pre;
+}

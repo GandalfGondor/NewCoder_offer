@@ -1,0 +1,57 @@
+STL六大组件：容器，算法，迭代器，仿函数，配接器，配置器。
+
+SGI正是以malloc 和free 完成内存的配置和释放
+考虑小区快造成的内存破碎问题，SGI设计了双层级配置器，第一级配置器直接使用malloc和free函数，
+第二级配置器则视情况采用不同的策略。当配置区块小于128Byte，采用memory pool整理。
+
+第一级配置器：
+1、allocate直接调用malloc，deallocate直接使用free。
+2、模拟C++的set_new_handler处理内存不足的情况。
+
+第二级配置器
+1、维护16个自由链表。内存池通过malloc配置获得。
+2、如果需求区块大于128bytes，就转而调用第一级配置器。
+SGI第二级配置器会主动将小需求调制8的整倍数。所以维护16个free-lists
+
+SGI STL中alloc默认是二级配置器。
+
+typedef typename调用，是为了声明是变量还是类型。
+
+initialzed_copy()特化 char,wchar 都可以通过memove内存底层操作。直接完成赋值。如果是POD类型，
+就进行STL的copy算法。否则挨个进行赋值。
+POD plain old  data 也就是标量型别的意思。pod型别拥有 trival cot/dtor/copy。因此我们可以对pod采用最
+有效率的初值填写方法。
+				 
+其中uninitialized_fill_n()具有 commit 和 rollback语义，要么产生所有元素，否则一个都不产生，丢出异常。
+
+第三章 迭代器
+迭代器是一种行为类似指针的对象。指针中最重要的便是内容提领和成员访问，因此operator* 和operator->重载
+工作。
+
+参数型别推导，可以用template参数推导机制来取得。
+函数返回值推导，利用内嵌型别进行推导，利用typedef typename可以设置返回值型别。
+当迭代器是原生指针的时候，可以让上述的一般化概念针对特定情况做特殊处理，template partial specialization
+即偏特化可以。即针对任何template参数更进一步的条件限制所设计出来的一个特化版本。
+
+特性萃取器traits可以有效运作，每一个迭代器必须遵守约定，自行以内嵌型别定义的方式定义出相应型别。
+
+value type：指迭代器所指对象的型别。任何一个打算与STL算法有完美搭配的class，都应该定义自己的valuetype。
+difference type：定义两个迭代器之间的距离，也可以用来表示一个容器的最大容量。
+reference type：返回一个引用。
+pointer type：传回一个左值，令它代表p所指之物的地址。
+iterator_category：迭代器的相应型别。
+
+iterator_traits<InputIterator>::iterator_category()
+产生一个临时对象，然后根据型别，决定调用哪一个重载函数。
+
+traits编程技法大量运用于STL实现品中。他利用“内嵌型别”的编程技巧与编译器的template参数推导功能，增强C++
+未能提供的关于型别认证方面的能力。
+
+_type_traits 判断该型别是否为POD型别。
+
+
+
+
+
+
+
