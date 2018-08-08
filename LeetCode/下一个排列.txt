@@ -1,0 +1,21 @@
+void nextPermutation(vector<int>& nums) {
+	int len = nums.size();
+	int pre = len -1;
+	int end = len -1;
+	for(pre = len-1;pre>0;--pre)
+	{
+		if(nums[pre-1]<nums[pre])
+		{
+			for(end = len-1;end>pre;--end)
+			{
+				if(nums[end]>nums[pre-1])
+					break;
+			}
+			swap(nums[pre-1],nums[end]);
+			reverse(nums.begin()+pre,nums.end());
+			return;
+		}
+
+	}
+	reverse(nums.begin(),nums.end());
+}

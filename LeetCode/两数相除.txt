@@ -1,0 +1,31 @@
+class Solution {
+public:
+int divide(int dividend, int divisor) {
+    	bool sign = true;
+	if( (dividend > 0 && divisor < 0) || (dividend < 0 && divisor > 0))
+		sign = false;
+   
+	long long end = labs((long long)dividend);
+	long long sor = labs((long long)divisor);
+	long long i = 0;
+	long long sum = 0;
+   	if (sor == 1)
+	{
+		i = sign?end:-end;
+		if(i > 2147483647)
+			return 2147483647;  
+        return i;	
+	}
+	else
+	{
+		for(;sum<=end;sum+=sor)
+		{
+			if(i > 2147483647)
+				return 2147483647;
+			++i;
+		}
+		--i;
+	}
+	return sign?i:-i;
+}
+};
