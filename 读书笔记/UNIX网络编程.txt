@@ -560,7 +560,6 @@ void 		*iov_base;
 size_t 		iov_len;
 }
 
-
 第十六章 非阻塞I/O
 
 套接字的默认状态是阻塞的。

@@ -1,0 +1,166 @@
+Redis C语言实现
+
+没有直接使用C风格字符串表示。使用SDS抽象类型。并将SDS用作Redis默认字符串表示。
+键值对： set msg “this is redis”
+1、键是字符串对象，底层是一个保存字符串"msg"的 SDS。
+2、值是字符串对象，对象时保存值"this is redis"的SDS。
+
+rpush list "A","B","C"
+1、键值是字符串对象，保存字符串“list” 的SDS。
+2、值是列表对象，列表有三个字符串对象，分别是 "A","B","C" 三个SDS。
+
+二进制安全：
+C字符串中的字符必须符合某种编码，并且除了字符串的末尾之外，字符串里面不能包含空字符。限制了不能保存
+图片，音频，视频，压缩文件的二进制数据。
+SDS中的buf来保存，len表示长度，free表示还有剩余多少位置。
+
+SDS优点：
+1、常数复杂度获取字符串。
+2、杜绝缓冲区溢出。
+3、减少修改字符串长度所需内存重新分配次数。
+4、二进制安全。
+5、兼容部分C字符串函数。
+
+第三章 链表
+Redis使用C语言构建自己的链表。
+Redsi服务器本身还使用链表来保存多个客户端的状态信息，以及使用链表来构建客户端输出缓冲区。
+
+ListNode{
+	struct ListNode *prev;
+	struct ListNode *next;
+	void *value;
+}
+list{
+	ListNode *head;
+	ListNode *tail;
+	unsigned long len;
+	void *(*dup)(void *ptr);
+	void (*free)(void *ptr);
+	int (*match)(void *ptr,void *key);
+}
+特点：
+1、双端指针。
+2、两头是NULL，无环。
+3、有表头指针和表尾指针。
+4、有链表长度计数器。
+5、多态。
+
+Redis中链表被用于列表键值，发布与订阅、慢查询、监视器。
+
+第四章 字典
+1、字典，又称为符号表、关联数组、或者映射，是一种用于保存键值对的抽象数据结构。
+Redis数据库的增删改查都是构建在对字典的操作之上。
+Redis字典使用哈希表作为底层实现。哈希表里面有多个节点，每个哈希表节点对就保存了字典中的一个键值对。
+哈希表节点：
+struct dictEntry{
+void *key;
+union{
+	void *val;
+	unint64_tu64;
+	int64_ts64;
+}v;
+struct dictEntry *next;
+};
+next的属性是指向另一个哈希表节点的指针，这个指针可以将多个哈希值相同的键值对链接在一起，以此来解决冲突
+问题。
+哈希表:
+struct dichtht{
+	dictEntry **table;
+	unsigned long size;
+	unsigned long sizemask;  //等于size-1;
+	unsigned long used;
+}dictht;
+table存储着键值对。size属性记录了哈希表的大小。
+
+struct dict{
+	dictType *type;
+	void *privdata;
+	dictht ht[2]; //每个字典有两个哈希表，一个平时使用，一个仅在rehash时使用。
+	int rehashidx;
+}
+Redis的哈希表使用链地址法来解决键值冲突。即next指针。
+同时为了速度考虑，使用头插法。
+考虑到rehash时，ht中保存的键值对有上亿个，所以需要多次分段进行rehash。
+所以需要rehashidx来记录时候完成rehash。
+
+
+第五章  跳跃表
+跳跃表支持平均O(logN),O(N)复杂度的节点查找。
+Redis使用跳跃表作为有序集合键的底层实现之一。
+有序集合所有数据保存在跳跃表里面。
+Redis跳跃表是由zskiplist，zskiplistNode两个结构组成，其中zskiplist用于保存跳跃表信息，比如表头节点，
+表尾节点，长度。zskiplistNode则是用于表示跳跃表节点。
+每个跳跃表节点的层高都是1至32之间的随机数。
+struct zskiplistNode{
+	struct zskiplistLevel{
+		struct zskiplistNode *forward;
+		unsigned int span;		//跨度
+	}level[];
+	struct zskiplistNode* backward;		
+	double score;	//跳跃表中所有节点都按照分值从小到大来排序。
+	robj *obj;		//指向一个字符串，字符串对象保存着SDS值。分值一样时候，按照SDS字典序排序。
+}zskiplistNode;
+
+struct zskiplist{
+	struct zskiplistNode *header,*tail;		//表头节点和表尾节点
+	unsigned long length;	//表中节点的数量
+	int level;   //表中最大的节点层数
+}
+
+第六章 整数集合
+整数集合是集合键的底层实现之一，当一个集合只包含整数值元素，且这个集合的元素数量不多的时候，Redis就会
+使用整数集合作为集合键的底层实现。
+struct intset{
+	uint32_t encoding;
+	uint32_t length;	//
+	int8_t contents[];   //每个元素都是一个数组项，从小到大排列，不重复。具体类型是encoding类型
+}
+
+每当我们要将一个新元素添加到整数集合里面，并且新元素的类型比整数集合现有所有类型都要长时，整数集合需要
+先进行升级，然后才能将新元素添加到整数集合里面。
+升级首先要做的是，根据新类型的长度，以及集合元素的数量，对底层数组进行空间重新分配。
+
+第七章
+压缩列表
+压缩列表是列表键和哈希键的底层实现之一。
+带给您一个链表只包含少量列表项，每个列表项是小整数或者短字符串，Redis使用压缩列表来做底层实现。
+哈希键同理。
+
+第八章	对象
+对于Redis数据库保存的键值对来说，键总是一个字符串对象，而值则可以是字符串对象，列表对象，哈希对象，集合
+对象或者有序集合对象的其中一种。
+Redis使用对象来表示数据库中的键和值，每次当我们在Redis的数据库中新创建一个键值对时，便会创建两个对象，
+一个对象用作键值对的键，另一个对象用作键值对的值。
+struct redisObject{
+	unsigned type:4;
+	unsigned encoding:4;
+	void *ptr;
+}
+
+字符串键的值为字符串对象，所以用于字符串键的所有命令都是针对字符串对象来构建的。
+列表对象的编码可以是ziplist或者linkedlist。
+哈希对象的编码可以是ziplist或者hashtable。
+集合对象的编码可以是intset或者hashtable
+有序集合的编码可以是ziplist或者skiplist。
+
+sadd numbers 1，2，3
+若是用hashtable集合对象使用字典作为底层实现，字典的每个键都是一个字符串对象，每个字符串对象包含了一个
+集合元素，而字典的值则全部被设置为NULL。
+
+Redis内存回收，利用引用计数实现内存的回收机制。
+
+对象共享。键A和键B可能共享一个对象。但是仅共享0到9999的字符串对象，因为如果越复杂的字符串需要共享，
+匹配所用的CPU消耗约大。
+
+
+空转时长，记录对象最后一次被访问的时间。当服务器占用的内存数超过了maxmemory选项所设置的上限值时，空转
+时长较高的那部分键会优先被服务器释放。
+
+
+
+
+
+
+
+
+

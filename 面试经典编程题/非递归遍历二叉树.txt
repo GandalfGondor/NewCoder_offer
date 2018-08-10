@@ -1,0 +1,69 @@
+void houxu(TreeNode * head)
+{
+	stack<TreeNode*> s;
+	TreeNode *cur = NULL;
+	TreeNode *pre = NULL;
+	s.push(head);
+	while(!s.empty())
+	{
+		cur = s.top();
+		/*第二种思路：要保证根结点在左孩子和右孩子访问之后才能访问，因此对于任一结点P，先将其入栈。
+		如果P不存在左孩子和右孩子，则可以直接访问它；或者P存 在左孩子或者右孩子，但是其左孩子和右
+		孩子都已被访问过了，则同样可以直接访问该结点。若非上述两种情况，则将P的右孩子和左孩子依次
+		入栈，这样就保证了 每次取栈顶元素的时候，左孩子在右孩子前面被访问，左孩子和右孩子都在根结
+		点前面被访问。*/
+		if((cur->left == NULL && cur->right == NULL) || 
+							(pre!=NULL && (pre == cur->left || pre==cur->right)))
+		{
+			printf("%d ",cur->val);
+			s.pop();
+			pre = cur;
+		}
+		else
+		{
+			if(cur->right != NULL)
+				s.push(cur->right);
+			if(cur->left != NULL)
+				s.push(cur->left);
+		}
+	}
+}
+void zhongxu(TreeNode * head)
+{
+	stack<TreeNode*> s;
+	while(head!=NULL || !s.empty())
+	{
+		while(head!=NULL)
+		{
+			s.push(head);
+			head = head->left;
+		}
+		if(!s.empty())
+		{
+			head = s.top();
+			s.pop();
+			printf("%d ",head->val);
+			head = head->right;
+		}
+	}
+}
+void qianxu(TreeNode *head) {
+	stack<TreeNode*> s;
+	while(head!=NULL || !s.empty())
+	{
+		while(head!=NULL)
+		{
+			printf("%d ",head->val);
+			s.push(head);
+			head = head->left;
+		}
+		if(!s.empty())
+		{
+			head = s.top();
+			head = head->right;
+			s.pop();
+		}
+	}
+
+    return;
+}
