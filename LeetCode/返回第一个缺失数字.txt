@@ -1,0 +1,21 @@
+int firstMissingPositive(vector<int>& nums) {
+	if(nums.empty())
+		return 1;
+	int max = 0;	
+	for(auto i:nums)
+	{
+		if(max<i)
+			max = i;
+	}
+	vector<int> vec(max+2,0);
+	for(auto i:nums)
+	{
+		if(i>0)
+			vec[i] = 1;
+	}
+	for(int j=1; j<max+2 ;++j)
+	{
+		if(vec[j]==0)
+			return j;
+	}
+}

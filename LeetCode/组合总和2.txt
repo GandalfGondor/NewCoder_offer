@@ -1,0 +1,39 @@
+void core(vector<vector<int>>& res,vector<int>& candidates, int target,vector<int> now,int pos)
+{
+	int sum = 0;
+	int i = pos+1;
+	for(auto s:now)
+		sum+=s;
+	if(sum == target)
+	{
+		res.push_back(now);
+		return ;
+	}
+	if(sum>target)
+		return;
+	now.push_back(0);	
+	for(;i<candidates.size();++i)
+	{
+		for(;i<candidates.size()&&i>pos+1 && candidates[i] == candidates[i-1];++i);
+		if(i>=candidates.size())
+			break;
+		*(now.end()-1) = candidates[i];
+		core(res,candidates,target,now,i);
+	}
+	return ;
+}
+vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+	sort(candidates.begin(),candidates.end());
+	vector<int> now;
+	now.push_back(0);
+	vector<vector<int>> res;
+	for(int i = 0; i<candidates.size();++i)
+	{
+		for(;i<candidates.size()&&i>0 && candidates[i] == candidates[i-1];++i);
+		if(i>=candidates.size())
+			break;
+		now[0] = candidates[i];
+		core(res,candidates,target,now,i);
+	}
+	return res;
+}

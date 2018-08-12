@@ -1,0 +1,78 @@
+//深度优先遍历方法
+
+void DFS(vector<vector<int>> m, vector<int> & rec,int pos)
+{
+	printf("%d ",pos);
+	for(int i = 0; i<m.size() ; ++i)
+	{
+		if(rec[i] == 0 && m[pos][i] == 1)
+		{
+			rec[i] = 1;
+			DFS(m,rec,i);
+		}
+	}
+}
+
+void TravelDFS(vector<vector<int>>m)
+{
+	vector<int> rec(m.size(),0);
+	for(int i =0;i<m.size();++i)
+	{
+		if(rec[i] == 0)
+		{
+			rec[i] = 1;
+			DFS(m,rec,i);
+		}
+		
+	}
+}
+
+int main()
+{
+	vector<vector<int>> m{{0,1,0,0,0,1,0,0,0},{1,0,1,0,0,0,1,0,1},{0,1,0,1,0,0,0,0,1},
+	{0,0,1,0,1,0,1,1,1},{0,0,0,1,0,1,0,1,0},{1,0,0,0,1,0,1,0,0},{0,1,0,1,0,1,0,1,0},
+	{0,0,0,1,1,0,1,0,0},{0,1,1,1,0,0,0,0,0}};
+	TravelDFS(m);
+	return 0;
+}
+
+
+//广度优先遍历
+void BFS(vector<vector<int>> m)
+{
+	vector<int> rec(m.size(),0);
+	queue<int> q;
+	for(int i = 0; i<m.size() ;++i)
+	{
+		if(rec[i] == 1)
+			continue;
+		rec[i] = 1;
+		q.push(i);
+		while(!q.empty())
+		{
+			int temp = q.front();
+			q.pop();
+			printf("%d ",temp);
+			for(int j = 0; j<m.size();++j)
+			{
+				if(rec[j] == 0 && m[temp][j] == 1)
+				{
+					q.push(j);
+					rec[j] = 1;
+				} 
+			}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -219,6 +219,8 @@ RDB文件：
 database部分结构：
 selectdb+db_number+key_value_pairs;
 
-
+RDB文件是一个经过压缩的二进制文件，由多个部分组成。
+服务器状态中会保存所有用save选项设置的保存条件，当任意一个保存条件被满足时，服务器会自动执行BGSAVE
+命令。
 
 
