@@ -1,20 +1,20 @@
 #include<stdio.h>
 #include <vector>
 
-int get_next(std::string s,std::vector<int>& vec) 
+int get_next(std::string s,std::vector<int>& next) 
 {
 	int i = 0;
 	int j = -1;
-	vec[0] = -1;
+	next[0] = -1;
 	while (i < s.size()-1)
 	{
 		if (j == -1 || s[i] == s[j])
 		{
 			++i;
 			++j;
-			vec[i] = j;
+			next[i] = j;
 		}
-		else j = vec[j];
+		else j = next[j];
 	}
 	return 0;
 }
