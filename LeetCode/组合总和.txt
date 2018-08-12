@@ -1,0 +1,28 @@
+void core(vector<int>& candidates, vector<vector<int>>&	res, vector<int> temp, int target,int pos)
+{
+	int sum = 0;
+	for(auto i:temp)
+		sum+=i;
+	if(sum>target)
+		return ;
+	if(sum == target)
+	{
+		res.push_back(temp);
+		return ;
+	}
+	int i = pos;
+	temp.push_back(0);
+	for(; i < candidates.size() ; ++i)
+	{
+		temp[temp.size()-1]=candidates[i];
+		core(candidates,res,temp,target,i);
+	}
+
+}
+vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+	vector<vector<int>>	res;
+	vector<int> temp;
+	core(candidates,res,temp,target,0);
+  
+    return res;
+}

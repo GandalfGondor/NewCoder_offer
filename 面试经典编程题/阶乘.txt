@@ -1,0 +1,35 @@
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	int n=20;
+	int k = 1;  
+	int fact[10000] = { 1,0 };
+	cout << "输入阶乘n: " << n << endl;;
+	
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 0; j < k; j++)
+		{
+			fact[j] = i * fact[j];  
+		}
+		for (int j = 0; j < k; j++)
+		{
+			if (fact[j] >= 10)
+			{
+				if (fact[j + 1] == 0)
+					++k;
+				fact[j + 1] += fact[j] / 10;
+				fact[j] = fact[j] % 10;
+			}
+		}
+	}
+	for (int j = k; j >= 0; j--)
+	{
+		cout << fact[j];
+	}
+	return 0;
+}
+
+
