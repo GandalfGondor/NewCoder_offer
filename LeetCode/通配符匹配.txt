@@ -1,0 +1,24 @@
+bool isMatch(string s, string p) {
+	int snow = 0, pnow = 0, sstar = -1, pstar = -1;
+	while(snow<s.size())
+	{
+		if(s[snow] == p[pnow] || p[pnow] == '?')
+		{
+			++snow;++pnow;
+		}		
+		else if(p[pnow] == '*')
+		{
+			pstar = pnow++;
+			sstar = snow;
+		}
+		else if(pstar != -1)
+		{
+			pnow = pstar + 1;
+			snow = ++sstar;
+		}
+		else return false;
+	}
+	while(p[pnow] == '*')
+		++pnow;
+	return pnow >= p.size()?true:false;
+}
