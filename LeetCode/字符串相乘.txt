@@ -1,0 +1,33 @@
+string multiply(string num1, string num2) {
+	if(num1 == "0" || num2 == "0")
+		return "0";
+	vector<int> res(num1.size()+num2.size()+2,0);
+	int i = 0;
+	int j = 0;
+	int k = 0;
+	int n1,n2;
+	for(i = num2.size()-1; i >= 0 ; --i)
+	{
+		n2 = num2[i]-'0';
+		for(j = num1.size()-1; j >= 0 ; --j)
+		{
+			n1 = num1[j]-'0';
+			res[num1.size()-j+num2.size()-i-2] += n1*n2;
+		}
+		for(k = 0; k < res.size(); ++k)
+		{
+			if(res[k]>9)
+			{
+				res[k+1]+=res[k] / 10;
+				res[k] = res[k] % 10;
+			}
+		}
+	}
+	string result;
+	for(i = res.size()-1; res[i]  == 0; --i);
+	for(; i > -1 ;--i)
+	{
+		result+=to_string(res[i]);
+	}
+	return result;
+}
