@@ -1,0 +1,38 @@
+vector<vector<int>> res;
+void core(vector<int>& nums,vector<bool> rec,vector<int>now)
+{
+	if(nums.size() == now.size())
+	{
+		res.push_back(now);
+		return;
+	}
+	now.push_back(0);
+	for(int i = 0;i<nums.size();++i)
+	{
+		if(rec[i])
+		{
+			now[now.size()-1] = nums[i];
+			rec[i] = false;
+			core(nums,rec,now);
+			rec[i] = true;
+		}
+	}
+}
+
+vector<vector<int>> permute(vector<int>& nums) {
+	vector<bool> rec(nums.size(),true);
+
+	vector<int> now;
+	if(!nums.empty())
+	{
+			now.push_back(0);
+			for(int i=0;i<nums.size();++i)
+			{	
+				now[now.size()-1] = nums[i];
+				rec[i] = false;
+	        	core(nums,rec,now);
+				rec[i] = true;
+			}	
+	}	
+	return res; 
+}

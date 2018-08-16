@@ -261,7 +261,20 @@ copyassignment 操作符。
 
 
 
+operator new 无法满足某一内存分配需求时，它会抛出异常。以前它会返回一个null指针，某些旧式编译器目前
+也还那么做。你还是可以取得旧行为。
+利用set_new_handler可以设置一个函数，当new抛出异常时客户调用的函数。
 
+typedef void (*new_handler)();
+将null传给set_new_handler可以卸掉目前的处理函数。
+
+如果new一个0bytes申请量会视为1byte申请量。
+placement new 也要写placement delete
+
+接受一个指针指向对象被构造之处：
+void *operator new(std::size_t,void * pMemory) throw();
+
+如果一个带有额外参数的operator new需要取消分配动作，有必要声明一个placement delete。
 
 
 

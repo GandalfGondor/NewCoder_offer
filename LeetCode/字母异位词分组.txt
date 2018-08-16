@@ -1,0 +1,30 @@
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+	vector<vector<int>> hash;
+	vector<vector<string>> res;
+	int i = 0,j=0;	
+	for(i=0;i<strs.size();++i)
+	{
+		vector<int> temp(26,0);
+		for(j=0;j<strs[i].size();++j)
+		{
+			
+			++temp[strs[i][j]-'a'];
+		}
+		for(j=0;j<hash.size();++j)
+		{
+			if(temp == hash[j])
+			{
+				res[j].push_back(strs[i]);
+				break;
+			}
+		}
+		if(j == hash.size())
+		{
+			vector<string> vt2;
+			hash.push_back(temp);
+			vt2.push_back(strs[i]);
+			res.push_back(vt2);
+		}
+	}
+	return res;
+}

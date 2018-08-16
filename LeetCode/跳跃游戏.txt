@@ -1,0 +1,26 @@
+int jump(vector<int>& nums) {
+	int pos = 0;
+	int len = 0;
+	int jump = 0;
+	int i = 0;
+	int mak = 0;
+	if(nums.size() == 1)
+		return 0;
+	while(pos<nums.size())
+	{
+		if(pos+nums[pos]>=nums.size()-1)
+				return ++jump;
+		len = 0;
+		for(i = 1; i<=nums[pos] ;++i)
+		{
+			if(len<i+nums[i+pos])
+			{
+				len = nums[i+pos]+i;
+				mak = i;
+			}
+		}
+		pos += mak;
+		++jump;
+	}
+	return jump;
+}

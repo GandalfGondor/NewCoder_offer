@@ -1,0 +1,30 @@
+void core(int i,int j,vector<vector<int>>& grid,int& area,vector<vector<bool>>& rec)
+{
+	if(i>=grid.size() || j>=grid[0].size() ||i<0||j<0||!grid[i][j] || !rec[i][j] )
+		return;
+	rec[i][j] = false;
+	++area;
+	core(i-1,j,grid,area,rec);
+	core(i+1,j,grid,area,rec);
+	core(i,j+1,grid,area,rec);
+	core(i,j-1,grid,area,rec);
+}
+
+int maxAreaOfIsland(vector<vector<int>>& grid) {
+	vector<vector<bool>> rec(grid.size(),vector<bool>(grid[0].size(),true));
+	int i = 0, j = 0;
+	int max = 0;
+	int area = 0;
+	for(;i<grid.size();++i)
+	{
+		for(j=0; j<grid[0].size();++j)
+		{
+			if(!rec[i][j] || !grid[i][j])
+				continue;
+			area = 0;
+			core(i,j,grid,area,rec);
+			max = area>max?area:max;
+		}
+	}
+	return max;	
+}

@@ -1,0 +1,26 @@
+前缀树
+1、根节点不包含字符，除根节点之外的每一个节点都只包含一个字符。
+2、从根节点到某一个节点，路径上经过的字符链接起来，为该节点对应的字符串。
+3、每个节点的所有子节点包含的字符都不相同。
+
+C++实现。
+class TrieNode
+{
+public：
+	char* word; //节点表示当前单词。
+	int count;	//单词出现的次数。
+	vector<TrieNode*> nextBranch[26];  //指向26字节点的指针。
+	TrieNode():word(NULL),count(0),nextBranch(26,NULL){}
+}
+
+class Trie
+{
+public：
+	Trie(){pRoot = new TrieNode};
+	~Trie(){delete pRoot};
+	void Insert(char);
+	int search(string s);
+private:
+	TrieNode* pRoot;
+
+}
