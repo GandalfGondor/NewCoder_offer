@@ -1,4 +1,4 @@
-懒汉实现方法：(线程安全)
+懒汉实现方法(线程安全)
 #include<mutex>
 #include<iostream>
 
@@ -42,7 +42,6 @@ public:
 };
 singleton* singleton::s = new singleton();
 singleton* singleton::getsingleton()
-{
-	
+{	
 	return s;
 }
