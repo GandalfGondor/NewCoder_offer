@@ -309,7 +309,6 @@ filedes[1]的文件描述符可写
 如果写一个读端被关闭的管道，会产生信号SIGPIPE，如果忽略该信号或者捕捉该信号。errno设置为EPIPE
 常数PIPE_BUF规定了内核管道中缓存器的大小。
 
-
 创建一个连接到另一个进程的管道。
 File *popen(const char * cmdstring, const char *type)
 成功返回文件指针，出错返回NULL。cmdstring都会以sh -c cmdstring形式进行扩充。

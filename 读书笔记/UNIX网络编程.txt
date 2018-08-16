@@ -482,7 +482,7 @@ TCP_MAXSEG允许我们获取或是设置TCP链接的MSS。
 TCP_NODELAY
 开启本选项将禁止TCP的Nagle算法。Nagle算法常常与ACK延迟算法联合使用。
 Nagle会等待小分组确认，才发送之后的字符。ACK延迟会等待数据进行ACK捎带发送。
-所以紧着TCP_NODELAY会节省很多时间。
+所以禁止TCP_NODELAY会节省很多时间。
 
 fcntl函数提供如下网络编程相关特性：
 1、非阻塞式I/O。通过使用F_SETFL命令设置O_NONBLOCK文件状态标志。
