@@ -1,0 +1,59 @@
+void getres(vector<vector<string>>& res, vector<vector<bool>>pos)
+{
+	vector<string> vs;
+	for(int i = 0; i<pos.size();++i)
+	{
+		string s;
+		for(int j = 0; j<pos.size();++j)
+		{
+			if(pos[i][j])
+				s+='Q';
+			else s+=".";
+		}
+		vs.push_back(s);
+	}
+	res.push_back(vs);
+}
+void core(vector<vector<string>>& res, vector<vector<bool>>rec,vector<vector<bool>>pos,int i)
+{
+	if(i>=rec.size())
+	{	
+		getres(res,pos);
+		return;	
+	}
+	int j = 0,t = 0,u = 0;
+	vector<vector<bool>> temp;
+	for(j=0 ; j<rec.size() ; ++j)
+	{
+		if(rec[i][j])
+		{
+			temp = rec;
+			pos[i][j] = true;
+			for(t=0 ; t<rec.size() ; ++t)
+				rec[i][t] = false;
+			for(t=0;t<rec.size();++t)
+				rec[t][j] = false;
+			for(t=i,u=j;u<rec.size() && t<rec.size();++u,++t)
+				rec[t][u] = false;
+			for(t=i,u=j;u>=0 && t>=0;--u,--t)
+				rec[t][u] = false;
+			for(t=i,u=j;u>=0 && t<rec.size();--u,++t)
+				rec[t][u] = false;
+			for(t=i,u=j;u<rec.size() && t>=0;++u,--t)
+				rec[t][u] = false;
+			core(res,rec,pos,i+1);
+			rec = temp;
+			pos[i][j] = false;
+		}
+	}
+}
+
+vector<vector<string>> solveNQueens(int n) {
+    vector<vector<bool>> rec(n,vector<bool>(n,true));
+	vector<vector<bool>> pos(n,vector<bool>(n,false));
+	vector<vector<string>> res;
+	if(n == 0)
+		return res;
+	core(res,rec,pos,0);
+	return res;
+}

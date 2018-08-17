@@ -1,0 +1,16 @@
+double core(double x, long long n)
+{
+	if(n == 1)
+		return x;
+	if(n%2)
+		return core(x,n/2)*core(x,n/2)*x;
+	return core(x,n/2)*core(x,n/2);
+}
+double myPow(double x, int n) {
+	long long l = n;
+	if(n == 0)
+		return 1;    
+	if(n<0)
+		return 1/core(x,-l);
+	return core(x,n);
+}
