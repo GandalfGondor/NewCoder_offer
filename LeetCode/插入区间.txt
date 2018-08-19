@@ -1,0 +1,22 @@
+vector<Interval> insert(vector<Interval>& intervals, Interval newInterval) {
+	vector<Interval> res;
+	int i = 0;
+	int one,two;
+	if(intervals.empty())
+	{
+		res.push_back(newInterval);
+		return res;
+	}
+	while(i<intervals.size()&&intervals[i].end<newInterval.start)
+			res.push_back(intervals[i++]);	
+	while(i<intervals.size()&&intervals[i].start<=newInterval.end)
+	{
+		newInterval.start = intervals[i].start<newInterval.start?intervals[i].start:newInterval.start;
+		newInterval.end = intervals[i].end>newInterval.end?intervals[i].end:newInterval.end;
+		++i;
+	}
+	res.push_back(newInterval);
+	while(i<intervals.size())
+		res.push_back(intervals[i++]);
+	return res;
+}

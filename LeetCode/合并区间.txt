@@ -1,0 +1,26 @@
+vector<Interval> merge(vector<Interval>& intervals) {
+	int left = 0;
+	int right = 0;
+	int i = 0,j=0;	
+	vector<int> l;
+	vector<int> r;
+	vector<Interval> res;
+	for(;i<intervals.size();++i)
+	{
+		l.push_back(intervals[i].start);
+		r.push_back(intervals[i].end);
+	}
+	sort(l.begin(),l.end());
+	sort(r.begin(),r.end());
+
+	for(i=0,j=0;i<intervals.size();++i)
+	{
+		if(r[i]<l[i+1]||i==intervals.size()-1)
+		{
+			Interval temp(l[j],r[i]);
+			res.push_back(temp);
+			j = i+1; 
+		}
+	}
+	return res;
+}

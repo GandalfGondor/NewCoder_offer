@@ -1,0 +1,31 @@
+bool canJump(vector<int>& nums) {
+	int i = 0;
+	int j = 0;
+	bool flag = true;
+	if(nums.size()<=1)
+		return flag;
+	for(;i<nums.size()&&flag;++i)
+	{
+		if(nums[i] == 0)
+		{
+			flag = false;
+			for(j=0;j<i;++j)
+			{
+				if(i!=nums.size()-1)
+				{
+					if(nums[j]>i-j)
+					{flag = true;
+					break;}		
+				}
+				else
+				{if(nums[j]>=i-j)
+					{flag = true;
+					break;}	}		
+			}
+		
+		}
+	
+	}
+	return flag;
+	
+}

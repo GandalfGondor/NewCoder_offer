@@ -1,0 +1,26 @@
+int lengthOfLastWord(string s) {
+	int start = 0,end = 0;
+	int len = s.size();
+	int i = 0;
+	int res = 0;
+	if(s.empty())
+		return 0;
+	for(;i<len;++i)
+	{
+		if(s[i]!=' ')
+		{
+			end = i+1;
+		}
+		else
+		{
+			res = end-start;
+			for(;i<len && s[i]==' ';++i);
+			if(i==len)
+				return res;
+			start = i;end = i;
+			--i;
+		}
+	}
+
+	return end-start;
+}
