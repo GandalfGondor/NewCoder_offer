@@ -9,7 +9,7 @@ class CMystring
 	char * m_pData;
 }
 
-CMystring& CMystring::operator=(const CMystring& Copy)
+CMystring CMystring::operator=(const CMystring& Copy)
 {
 	if(this != &Copy)
 	{

@@ -1,0 +1,199 @@
+#include <iostream>
+using namespace std;
+
+class String
+{
+public:
+    String();                           //默认构造函数
+    String(int n, char c);              //普通构造函数
+    String(const char* source);         //普通构造函数
+    String(const String& s);            //复制构造函数
+    String& operator=(char* s);         //重载=,实现字符串赋值
+    String& operator=(const String& s); //重载=,实现对象赋值
+    ~String();                         //析构函数
+    char& operator[](int i);            //重载[],实现数组运算
+    const char& operator[](int i) const;    // 重载[],实现数组运算，对象为常量
+    String& operator+=(const String& s);    //重载+=，实现与对象相加
+    String& operator+=(const char* s);      //重载+=,实现与字符串相加
+    friend ostream& operator<<(ostream& out, String& s);    //重载<<
+    friend istream& operator>>(istream& in, String& s);     //重载>>
+    friend bool operator<(const String& left, const String& right);     //重载<
+    friend bool operator>(const String& left, const String& right);     //重载>
+    friend bool operator==(const String& left, const String& right);    //重载==
+    friend bool operator!=(const String& left, const String& right);    //重载!=
+    char* getData();
+private:
+    int size;       //data表示的字符串长度
+    char* data;     //指向字符串数据
+};
+
+#include "String.h"
+
+String::String()
+{
+    data = new char[1];
+    *data = '\0';
+    size = 0;
+}
+
+String::String(int n, char c)
+{
+    size = n;
+    data = new char[n + 1];
+    char* temp = data;
+    while (n--)
+    {
+        *temp++ = c;
+    }
+    *temp = '\0';
+
+}
+
+String::String(const char* source)
+{
+    if (source == nullptr)
+    {
+        data = new char[1];
+        *data = '\0';
+        size = 0;
+    }
+    else
+    {
+        size = strlen(source);
+        data = new char[size + 1];
+        strcpy_s(data, size + 1, source);
+    }
+}
+
+String::String(const String& s)
+{
+    size = s.size;
+    data = new char[s.size+ 1];
+    strcpy_s(data, s.size + 1, s.data);
+}
+
+
+String& String::operator=(char *s)
+{
+    if (data != nullptr)
+        delete[] data;
+    size = strlen(s);
+    data = new char[size + 1];
+    strcpy_s(data, size + 1, s);
+    return *this;
+}
+
+String& String::operator=(const String& s)
+{
+    if (this == &s)
+        return *this;
+    if (data != nullptr) //先释放内存
+        delete[] data;
+    size = s.size;
+    data = new char[size + 1];
+    strcpy_s(data, size + 1, s.data);
+    return *this;
+}
+
+String::~String()
+{
+    if (data != nullptr)
+    {
+        delete[] data;
+        data = nullptr;
+        size = 0;
+    }
+}
+
+char& String::operator[](int i)
+{
+    return data[i];
+}
+
+const char& String::operator[](int i) const
+{
+    return data[i];
+}
+
+String& String::operator+=(const String& s)
+{
+    int len = size + s.size + 1;
+    char *temp = data;
+    data = new char[len];
+    strcpy_s(data, size + 1, temp);
+    strcat_s(data, len,s.data);
+    delete[] temp;
+    size = len - 1;
+    return *this;
+}
+
+String& String::operator+=(const char* s)
+{
+    if (s == nullptr)
+    {
+        return *this;
+    }
+    int len = size + strlen(s) + 1;
+    char *temp = data;
+    data = new char[len];
+    strcpy_s(data, size + 1, temp);
+    strcat_s(data, len, s);
+    delete[] temp;
+    size = len - 1;
+    return *this;
+}
+
+ostream& operator<<(ostream& out, String& s)
+{
+    for (int i = 0; i < s.size; i++)
+        out << s[i] << " ";
+    return out;
+}
+
+istream& operator>>(istream& in, String& s)
+{
+    char p[50];
+    in.getline(p, 50);      //从输入流接受最多50个字符
+    s = p;                  //调用赋值函数
+    return in;
+}
+
+bool operator<(const String& left, const String& right) //重载<
+{
+    int i = 0;
+    while (left[i] == right[i] && left[i] != 0 && right[i] != 0)
+        i++;
+    return left[i] - right[i] < 0 ? true : false;
+}
+
+bool operator>(const String& left, const String& right) //重载<
+{
+    int i = 0;
+    while (left[i] == right[i] && left[i] != 0 && right[i] != 0)
+        i++;
+    return left[i] - right[i] > 0 ? true : false;
+}
+
+bool operator==(const String& left, const String& right)
+{
+    if (left.size != right.size)
+        return false;
+    for (int i = 0; i < left.size; i++)
+    {
+        if (left.data[i] != right.data[i])
+            return false;
+    }
+    return true;
+}
+
+bool operator!=(const String& left, const String& right)
+{
+    if (left.size != right.size)
+        return true;
+    for (int i = 0; i < left.size; i++)
+    {
+        if (left.data[i] != right.data[i])
+            return true;
+    }
+    return false;
+}

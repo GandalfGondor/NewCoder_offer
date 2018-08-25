@@ -1,0 +1,21 @@
+vector<int> twoSum(vector<int>& nums, int target) 
+{
+	int start = 0;
+	int end = 0;
+	int len = nums.size();
+	unordered_map<int,int> hashmap;
+	for(;start<len;++start)
+	{
+		hashmap[nums[start]] = start;
+	}
+	vector<int> res;
+	for(start = 0;start<len;++start)
+	{
+		int t = target - nums[start];
+		if(hashmap.count(t) && hashmap[t] != start)
+		{
+			return vector<int>{start,hashmap[t]};
+		}
+	}
+	return res;
+}
