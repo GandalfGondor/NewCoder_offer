@@ -1,0 +1,98 @@
+快速排序算法：
+void swap(vector<int>& vec, int a, int b)
+{
+	if(a == b)
+		return;
+	int temp = vec[a];
+	vec[a] = vec[b];
+	vec[b] = temp;
+}
+int core(vector<int>& vec, int start, int end)
+{
+	while(start<end)
+	{
+		for(;start<end && vec[start]<=vec[end];--end);
+		swap(vec,start,end);
+		for(;start<end && vec[start]<=vec[end];++start);
+		swap(vec,start,end);
+	}
+	return start;
+}
+
+
+void qicSort(vector<int>& vec,int start ,int end)
+{
+	if(start >= end)
+		return ;
+	int part = core(vec,start,end);
+	qicSort(vec,start,part-1);
+	qicSort(vec,part+1,end);
+}
+
+
+堆排序算法：
+void core(vector<int>& vec, int start, int end)
+{
+	int j;
+	int pos = vec[start];	
+	for(j = 2 * start + 1;j<=end;j = 2*j + 1)
+	{
+		if(j < end && vec[j+1]>=vec[j])
+			++j;
+		if(vec[j]<=pos)
+			break;
+		vec[start] = vec[j]; 
+		start = j;
+	}
+	vec[start] = pos;
+	return ;
+}
+void MergSort(vector<int>& vec)
+{
+	int len = vec.size();
+	int i = 0;	
+	for(i=len/2-1;i>=0;--i)
+	{
+		core(vec,i,len-1);
+	}
+	for(i = len-1;i>=1;--i)
+	{
+		swap(vec,0,i);
+		core(vec,0,i-1);
+	}
+}
+
+归并排序算法：
+void Merg(vector<int>& res,int s, int m, int e)
+{
+	vector<int> temp(res.size(),0);
+	int s1 = s,st = s,s2 = m+1;
+	for(;s1<=m && s2<=e && st<=e;++st)
+	{
+		if(res[s1]<=res[s2])
+			temp[st] = res[s1++];
+		else
+			temp[st] = res[s2++];
+	}
+	if(s1<=m)
+		for(;s1<=m;++s1,++st)
+			temp[st] = res[s1];
+	if(s2<=e)
+		for(;s2<=e;++s2,++st)
+			temp[st] = res[s2];
+	for(;s<=e;++s)
+		res[s] = temp[s];
+}
+
+void MSort(vector<int> vec,vector<int>& res,int i ,int j )
+{
+	if(i>=j)
+	{
+		res[i] = vec[i];
+		return;
+	}	
+	int mid = (i+j)/2;
+	MSort(vec,res,i,mid);
+	MSort(vec,res,mid+1,j);
+	Merg(res,i,mid,j);
+}
