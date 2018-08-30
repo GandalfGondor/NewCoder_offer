@@ -572,7 +572,7 @@ size_t 		iov_len;
 	
 非阻塞的TCP套接字上调用connect时，connect立即返回一个EINPROGRESS错误，不过已经发起TCP三路握手继续进行，
 使用select检测这个链接成功或者失败的已建立条件。
-1、一个connect至少花费一个RTTI时间，局域网可能是几个毫秒，广域网可能是几秒。
+1、一个connect至少花费一个RTT时间，局域网可能是几个毫秒，广域网可能是几秒。
 2、我们可以同时建立多个链接，适用于Web浏览器。
 3、使用select等待链接的建立，我们可以指定时间间隔，使得缩短connect的超时。
 
