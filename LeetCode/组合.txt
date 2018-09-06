@@ -1,0 +1,23 @@
+void core(vector<vector<int>> & res, vector<int> now,int pos,int n, int k)
+{
+	if(k == 0)
+	{
+		res.push_back(now);
+		return ;
+	}
+	now.push_back(0);
+	for(int i = pos;i<=n-k+1;++i)
+	{
+		now[now.size()-1] = i;
+		core(res,now,i+1,n,k-1);
+	}
+}
+
+vector<vector<int>> combine(int n, int k) {
+    vector<vector<int>> res;
+	if(n == 0 || k == 0)
+			return res;
+	vector<int> now;	
+	core(res,now,1,n,k);
+	return res;
+}

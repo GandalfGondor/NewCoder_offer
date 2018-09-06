@@ -1,0 +1,41 @@
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        unordered_map<char,int> hash;
+        string res;
+        int count = 0,left = 0,minLen = s.size()+1;
+        int i = 0;
+        for(;i<t.size();++i)
+        {
+            if(hash.find(t[i]) == hash.end())
+                hash[t[i]] = 1;
+            else ++hash[t[i]];
+        }
+        for(i = 0;i<s.size();++i)
+        {
+            if(hash.find(s[i]) != hash.end())
+            {
+                --hash[s[i]];
+                if(hash[s[i]]>=0)
+                    ++count;
+                while(count == t.size())
+                {
+                    if(i-left+1 <minLen)
+                    {
+                        minLen = i-left+1;
+                        res = s.substr(left,minLen);
+                    }
+                    if(hash.find(s[left]) != hash.end())
+                    {
+                        ++hash[s[left]];
+                        if(hash[s[left]]>0) --count;
+                    }
+                    ++left;
+                }
+                
+            }
+            
+        }
+        return res;
+    }
+};
