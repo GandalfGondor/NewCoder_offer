@@ -1,0 +1,19 @@
+bool core(vector<int>& nums, int& target, int start ,int end)
+{
+	if(start>end)
+		return false;
+	if(start == end)
+		if(nums[start] == target)
+			return true;
+		else return false;
+	return core(nums,target,start,(start+end)/2) || core(nums,target,(start+end)/2+1,end);
+}
+
+bool search(vector<int>& nums, int& target) 
+{
+	if(nums.empty())
+		return false;
+	int len = nums.size();
+	bool res = core(nums,target,0,len/2-1) || core(nums,target,len/2,len-1);
+	return res;
+}
