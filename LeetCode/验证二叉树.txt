@@ -1,0 +1,13 @@
+bool core(TreeNode* root ,long long  left , long long right)
+{
+	if(root==NULL)
+		return true;
+	if(root->val < right && root->val > left)
+		return core(root->left,left,root->val) && core(root->right,root->val,right);
+	return false;
+}
+
+bool isValidBST(TreeNode* root) 
+{
+	return core(root,-9223372036854775808,9223372036854775807);
+}
