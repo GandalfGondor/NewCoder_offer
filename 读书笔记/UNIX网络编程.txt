@@ -137,8 +137,8 @@ int type参数指明套接字类型；
 	SOCK_STREAM		字节流套接字
 	SOCKET_DGRAM	数据报套接字
 	SOCKET_RAW 原始套接字
-int protocol 参数应该设置位某个协议类型常值，或者设为0；、
-	IPPROTO_CP		TCP传输协议
+int protocol 参数应该设置位某个协议类型常值，或者设为0；
+	IPPROTO_TCP		TCP传输协议
 	IPPROTO_UDP		UDP传输协议
 	
 AF_XXX和PF_XXX区别

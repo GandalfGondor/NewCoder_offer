@@ -48,7 +48,6 @@ ioctl函数是I/O操作的杂物箱。
 int ioctl(int filedes,int request,...)
 
 
-
 第七章 UNIX进程的环境
 当内核启动C程序时，在调用main之前先调用一个特殊的启动例程。
 

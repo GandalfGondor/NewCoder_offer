@@ -28,7 +28,7 @@ struct LRUCache
 {
 	int size;
 	CacheNode *head,*tail;
-	CacheNode(int s):size(s),head(NULL),tail(NULL){}
+	LRUCache(int s):size(s),head(NULL),tail(NULL){}
 }
 
 void remove(CacheNode* Node)

@@ -1,0 +1,23 @@
+ListNode* reverseBetween(ListNode* head, int m, int n)
+{
+	ListNode* pre = new ListNode(1);
+	pre->next = head;
+	ListNode* res = head;	
+	for(int i = 1; i < m ;++i)
+	{
+		pre = pre->next;
+		head = head->next;
+	}
+	ListNode* now = pre->next;
+	for(int i = m; i < n ;++i)
+	{
+		ListNode* temp = now->next;
+		ListNode* temp2 = pre->next;
+		pre->next = temp;
+		now->next = temp->next;
+		pre->next->next = temp2;
+	}
+	if(m==1)	
+		return pre->next;
+	return res;
+}
